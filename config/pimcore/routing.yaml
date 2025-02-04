@@ -1,0 +1,6 @@
+ec_shopify:
+    resource: "@ecShopifyBundle/src/Controller/"
+    type:     annotation
+    prefix:   /
+
+
