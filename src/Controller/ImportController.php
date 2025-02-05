@@ -260,7 +260,9 @@ class ImportController extends FrontendController
         $value = [];
         if (array_key_exists('edges', json_decode($datas['metafields'], true))) {
             foreach (json_decode($datas['metafields'], true)['edges'] as $metafield) {
-                if (array_key_exists('node', $metafield) && array_key_exists('definition', $metafield['node']) && array_key_exists('name', $metafield['node']['definition'])) {
+                if (is_array($metafield) && array_key_exists('node', $metafield) 
+                    && is_array($metafield['node']) && array_key_exists('definition', $metafield['node']) 
+                    && is_array($metafield['node']['definition']) && array_key_exists('name', $metafield['node']['definition'])) {
                     $name = $metafield['node']['definition']['name'];
                     $values = json_decode($metafield['node']['value'], true);
                     $idF = $this->nettoyeId($metafield['node']['id']);
