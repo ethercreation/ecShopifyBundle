@@ -622,7 +622,7 @@ class MigrationController extends FrontendController
         }
 
         foreach ($item['metafields']['edges'] as $data) {
-            if (array_key_exists('node', $data) && array_key_exists('value', $data['node'])) {
+            if (!array_key_exists('node', $data) || !array_key_exists('value', $data['node'])) {
                 continue;
             }
 
