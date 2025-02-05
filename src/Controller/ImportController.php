@@ -447,8 +447,9 @@ class ImportController extends FrontendController
                 $idPim = Outils::putCreateCaracValue($caracs->value[$k], $diffusion, $idCarac, $langPS);
             }
 //            }
-
-            $caracList[] = DataObject::getById($idPim);
+            if ($idPim) {
+                $caracList[] = DataObject::getById($idPim);
+            }
         }
         return $caracList;
     }
