@@ -622,7 +622,15 @@ class MigrationController extends FrontendController
         }
 
         foreach ($item['metafields']['edges'] as $data) {
+            if (array_key_exists('node', $data) && array_key_exists('value', $data['node'])) {
+                continue;
+            }
+
             $lstMetaObject = json_decode($data['node']['value'], true);
+
+            if (empty($lstMetaObject) || !is_array($lstMetaObject)) {
+                continue;
+            }
 
             foreach ($lstMetaObject as $idMetaObject) {
                 $retour = self::getMetaobjectByID($idMetaObject);
