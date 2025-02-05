@@ -443,7 +443,9 @@ class ImportController extends FrontendController
 
 //            if ($idPim == 0) {
 //            $idPim = $this->createCaracValue($caracs->value[$k], $diffusion, $idCarac, $langPS);
-            $idPim = Outils::putCreateCaracValue($caracs->value[$k], $diffusion, $idCarac, $langPS);
+            if (is_array($caracs->value) && array_key_exists($k, $caracs->value)) {
+                $idPim = Outils::putCreateCaracValue($caracs->value[$k], $diffusion, $idCarac, $langPS);
+            }
 //            }
 
             $caracList[] = DataObject::getById($idPim);
