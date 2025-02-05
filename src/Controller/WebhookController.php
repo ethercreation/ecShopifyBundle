@@ -204,8 +204,8 @@ class WebhookController extends DefaultController
         ];
         Outils::addLog('DEBUT CREA COMMANDDE', 3);
         //dump(json_encode($transformedData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE));
-        $diffusion = Diffusion::getById(self::ID_DIFFUSION);
-        // $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
+        // $diffusion = Diffusion::getById(self::ID_DIFFUSION);
+        $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
         Outils::importOrder($diffusion->getId(), json_encode($transformedData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE));
         return new Response(content: '<pre>OK</pre>', status: 200);
  
