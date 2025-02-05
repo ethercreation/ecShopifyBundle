@@ -260,15 +260,17 @@ class ImportController extends FrontendController
         $value = [];
         if (array_key_exists('edges', json_decode($datas['metafields'], true))) {
             foreach (json_decode($datas['metafields'], true)['edges'] as $metafield) {
-                $name = $metafield['node']['definition']['name'];
-                $values = json_decode($metafield['node']['value'], true);
-                $idF = $this->nettoyeId($metafield['node']['id']);
-                $feature[] = ['name' => [1 => $name], 'id' => $idF];
-                foreach ($values as $gid) {
-                    $metaobjects = json_decode($datas['metaObject'], true);
-                    if (isset($metaobjects[$gid])) {
-                        $displayName = $metaobjects[$gid]['displayName'];
-                        $value[] = ['custom' => 0, 'value' => [1 => $displayName], 'id_feature' => $idF, 'id' => $this->nettoyeId($metaobjects[$gid]['id'])];
+                if (array_key_exists('node', $metafield) && array_key_exists('definition', $metafield['node']) && array_key_exists('name', $metafield['node']['definition'])) {
+                    $name = $metafield['node']['definition']['name'];
+                    $values = json_decode($metafield['node']['value'], true);
+                    $idF = $this->nettoyeId($metafield['node']['id']);
+                    $feature[] = ['name' => [1 => $name], 'id' => $idF];
+                    foreach ($values as $gid) {
+                        $metaobjects = json_decode($datas['metaObject'], true);
+                        if (isset($metaobjects[$gid])) {
+                            $displayName = $metaobjects[$gid]['displayName'];
+                            $value[] = ['custom' => 0, 'value' => [1 => $displayName], 'id_feature' => $idF, 'id' => $this->nettoyeId($metaobjects[$gid]['id'])];
+                        }
                     }
                 }
             }
