@@ -86,7 +86,7 @@ class MigrationController extends FrontendController
         // $retour = $this->getMetafieldDefinition();
         // $retour = $this->cronFillCatalog([]);
         // $retour = self::getMetaobjectByID();
-        $retour = self::getProductByID('gid://shopify/Product/9873437131074');
+        // $retour = self::getProductByID('gid://shopify/Product/9873437131074');
         return new JsonResponse([$retour ?? 'OK'], 200);
 
         
@@ -232,8 +232,7 @@ class MigrationController extends FrontendController
 
     public static function declareClient()
     {
-        $diffusion = Dataobject::getByPath('/Diffusion/Hadrien');
-        $diffusion = Diffusion::getById(68311);
+        $diffusion = Dataobject::getByPath('/Diffusion/Shopify');
         $config = [
             'shopify_api_hostname' => Outils::getConfigByName($diffusion, 'shopify_api_hostname'),
             'shopify_access_token' => Outils::getConfigByName($diffusion, 'shopify_access_token'),
