@@ -550,7 +550,7 @@ class MigrationController extends FrontendController
         if (!$nbCron) {
             Outils::setWebSetting($cron, json_encode([]));
         } 
-        $cronData = WebsiteSetting::getByName($cron)->getData();
+        $cronData = json_decode(WebsiteSetting::getByName($cron)->getData(), true);
 
         $work = [
             $this->catalog_name => [
