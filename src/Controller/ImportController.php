@@ -433,7 +433,7 @@ class ImportController extends FrontendController
 //        $langPS = 1;
         foreach ($caracs->feature as $k => $json) {
             $idCarac = Outils::getExist($json->id, $diffusion->getID(), 'crossid', 'carac');
-
+            $idPim = 0;
             if ($idCarac == 0) {
 //                $idCarac = $this->createCarac($json, $diffusion, $langPS);
                 $idCarac = Outils::putCreateCarac($json, $diffusion, $langPS);
