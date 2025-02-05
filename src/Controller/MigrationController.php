@@ -266,7 +266,7 @@ class MigrationController extends FrontendController
 
         $addAfter = !$cursor ? '' : (', after: "'.$cursor.'"');
         $query ='{
-            products (first: 250'.$addAfter.') {
+            products (first: 50'.$addAfter.') {
                 edges {
                     node {
                         id
