@@ -785,6 +785,19 @@ class DefaultController extends FrontendController
             $config->save();
         }
 
+        if (!Dataobject::getByPath('/Diffusion/Hadrien/action_after_product_delete')) {
+            $config = new DataObject\Config();
+            $config->setParentID($diffusion->getId());
+            $config->setKey('action_after_product_delete');
+            $config->setIdconfig('action_after_product_delete');
+            $config->setPublished(true);
+            $config->setName('Action sur Shopify après une suppression d\'article sur le Pim');
+            $config->setTypeList('[{"key":"Supprimer le produit", "value":1}, {"key":Passage en brouillon", "value":2}]');
+            $config->setTypeConfig('select');
+            $config->setValeur(1);
+            $config->save();
+        }
+
         // if (!Dataobject::getByPath('/Diffusion/Shopify/desc_lenght')) {
         //     $config = new DataObject\Config();
         //     $config->setParentID(WebsiteSetting::getByName('folderConfig')->getData());
@@ -880,6 +893,7 @@ class DefaultController extends FrontendController
             $cron->save();
         }
 
+        
 
         $diffusion->setId_folder($folder->getId());
         $diffusion->save();

@@ -86,7 +86,7 @@ class PimcoreHookController extends DefaultController
         // $object['object'] = 'stock';
         $obj->setHideUnpublished(false);
         $produit = $obj->getStock_product()??0;
-
+        Outils::addLog('fonction hookUpdateStockShopify ', 3);
         // $product = $params['product'];
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateStock($produit);
@@ -104,10 +104,14 @@ class PimcoreHookController extends DefaultController
         /**
          * @var Product $product
          */
+        // Outils::addLog('fonction hookUpdateProduct', 1, [], 'NOMDULOG');
+        Outils::addLog('debut fonction hookUpdateProduct', 3, [], 'NOMDULOG');
+        
         $product = $params['product'];
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateProduct($product);
         Outils::addLog('Modification d\'un produit: ' . $result, 1, [], 'NOMDULOG');
+        Outils::addLog('fin fonction hookUpdateProduct', 3, [], 'NOMDULOG');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
@@ -121,9 +125,10 @@ class PimcoreHookController extends DefaultController
          * @var Product $product
          */
         $product = $params['product'];
-
+        Outils::addLog('fonction hookDeleteBeforeProduct ', 3);
         $shopify = new ShopifyApiClient();
         $result = $shopify->deleteProduct($product);
+        Outils::addLog('fin fonction hookDeleteBeforeProduct ', 3);
         return new Response('ok');
     }
 
@@ -206,27 +211,27 @@ class PimcoreHookController extends DefaultController
 
     public function hookUpdateDecli($params)
     {
+        Outils::addLog('debut fonction hookUpdateDecli', 3, [], 'NOMDULOG');
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
         /** @var Product $product */
         $product = $decli->getParent();
         $shopify = new ShopifyApiClient();
-        // $result = $shopify->updateProduct($product);
-        $result = '';
+        $result = $shopify->updateDecli($decli);
+        // $result = '';
         Outils::addLog('Modification d\'un produit: ' . $result, 1, [], 'NOMDULOG');
+        Outils::addLog('fin fonction hookUpdateDecli', 3, [], 'NOMDULOG');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
-
     public function hookDeleteDecli($params)
     {
+        Outils::addLog('fonction hookDeleteDecli ', 3);
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
         /** @var Product $product */
-        $shopify_client = $this->getShopifyClient();
-        $result = $shopify_client->delete(
-            path: 'variants/' . Outils::getCrossId($decli, Diffusion::getByPath('/Diffusion/Shopify'))
-        );
+        $shopify_client = new ShopifyApiClient();
+        $result = $shopify_client->deleteDecli($decli);
         Outils::addLog('Suppression d\'une déclinaison: ' . $result, 1, [], 'NOMDULOG');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
