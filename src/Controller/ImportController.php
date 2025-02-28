@@ -77,6 +77,19 @@ class ImportController extends FrontendController
         $nbCron = $params['nbCron'];
         $stopTime = $params['stopTime'];
 
+        if (!$stop_hook = Outils::getCache('stop_hook')) {
+            $stop_hook = DataObject::getByPath('/Config/stop_hook');
+            Outils::putCache('stop_hook', $stop_hook);
+        }
+        if ($stop_hook->getValeur() != 1) {
+            $stop_hook->nohook = true;
+            \Pimcore\Model\Version::disable();
+            $stop_hook->setValeur(1);
+            $stop_hook->save();
+            \Pimcore\Model\Version::enable();
+            $stop_hook->nohook = false;    
+        }
+
         $traitements = Outils::query('SELECT *
                         FROM eci_midle_file_productShopify                    
                         WHERE (`log` = "NOK" or `log` IS NULL)
@@ -94,6 +107,13 @@ class ImportController extends FrontendController
             Outils::addLog('Produit ' . $this->nettoyeId($traitem['id']) . ' : ' . json_encode($result));
             Outils::query('DELETE FROM eci_midle_file_productShopify WHERE i = ' . $traitem['i']);
         }
+        
+        $stop_hook->nohook = true;
+        \Pimcore\Model\Version::disable();
+        $stop_hook->setValeur(0);
+        $stop_hook->save();
+        \Pimcore\Model\Version::enable();
+        $stop_hook->nohook = false;      
         return true;
     }
 
@@ -168,10 +188,11 @@ class ImportController extends FrontendController
    
         $declis = json_decode($datas['variants'], true)['edges']; 
         
-        $simple = 1;
-        if (count($declis) > 1) {
-            $simple = 0;
-        }
+        $simple = 0;
+        // $simple = 1;
+        // if (count($declis) > 1) {
+        //     $simple = 0;
+        // }
         $firstDec = $declis[0]['node'];
         
         $prod = [
@@ -287,6 +308,11 @@ class ImportController extends FrontendController
         // $image = json_decode(json_encode($image));
         $decli = json_decode(json_encode($decli));
         $carac = json_decode(json_encode($carac));
+
+        if (!$import_product = Outils::getCache('import_product')) {
+            $import_product = DataObject::getByPath('/Config/import_product');
+            Outils::putCache('import_product', $import_product);
+        }
 
         // Verif si déjà crossid
         $idPim = Outils::getExist($prod->id, $id_diffusion, 'crossid', 'product');

@@ -108,8 +108,10 @@ class PimcoreHookController extends DefaultController
         Outils::addLog('debut fonction hookUpdateProduct', 3, [], 'NOMDULOG');
         
         $product = $params['product'];
+        
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateProduct($product);
+
         Outils::addLog('Modification d\'un produit: ' . $result, 1, [], 'NOMDULOG');
         Outils::addLog('fin fonction hookUpdateProduct', 3, [], 'NOMDULOG');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
@@ -135,78 +137,78 @@ class PimcoreHookController extends DefaultController
     /**
      * Actions à effectuer lors de la création d'une catégorie dans pimcore
      */
-    #[Route('/create-category', name: 'create_category')]
-    public function hookCreateCategory($params): Response
-    {
-        Outils::addLog("Hook creation de produit tapé", 1);
-        /**
-         * @var Category $category
-         */
-        $category = json_decode(json_encode($params['category']));
-        $shopify = new ShopifyApiClient();
-        try {
-            $shopify->createCollection($category);
-        } catch (ClientExceptionInterface|UninitializedContextException|\JsonException $e) {
-            return new Response($e->getMessage());
-        }
-        return new Response('ok');
-    }
+    // #[Route('/create-category', name: 'create_category')]
+    // public function hookCreateCategory($params): Response
+    // {
+    //     Outils::addLog("Hook creation de produit tapé", 1);
+    //     /**
+    //      * @var Category $category
+    //      */
+    //     $category = json_decode(json_encode($params['category']));
+    //     $shopify = new ShopifyApiClient();
+    //     try {
+    //         $shopify->createCollection($category);
+    //     } catch (ClientExceptionInterface|UninitializedContextException|\JsonException $e) {
+    //         return new Response($e->getMessage());
+    //     }
+    //     return new Response('ok');
+    // }
 
     /**
      * Actions à effectuer lors de la modification d'une catégorie dans pimcore
      */
-    #[Route('/update-category', name: 'update_category')]
-    public function hookUpdateCategory(): Response
-    {
-        return new Response('Pas encore disponible');
-    }
+    // #[Route('/update-category', name: 'update_category')]
+    // public function hookUpdateCategory(): Response
+    // {
+    //     return new Response('Pas encore disponible');
+    // }
 
     /**
      * Actions à effectuer lors de la suppression d'une catégorie dans pimcore
      */
-    #[Route('/delete-category', name: 'delete_category')]
-    public function hookDeleteCategory($params): Response
-    {
-        /**
-         * @var Category $category
-         */
-        $category = json_decode(json_encode($params['category']));
-        $shopify = new ShopifyApiClient();
-        try {
-            $shopify->deleteCollection($category);
-        } catch (ClientExceptionInterface|UninitializedContextException|\JsonException $e) {
-            return new Response($e->getMessage());
-        }
-        return new Response('Collection supprimée');
-    }
+    // #[Route('/delete-category', name: 'delete_category')]
+    // public function hookDeleteCategory($params): Response
+    // {
+    //     /**
+    //      * @var Category $category
+    //      */
+    //     $category = json_decode(json_encode($params['category']));
+    //     $shopify = new ShopifyApiClient();
+    //     try {
+    //         $shopify->deleteCollection($category);
+    //     } catch (ClientExceptionInterface|UninitializedContextException|\JsonException $e) {
+    //         return new Response($e->getMessage());
+    //     }
+    //     return new Response('Collection supprimée');
+    // }
 
     /**
      * Actions à effectuer lors de la création d'un client dans pimcore
      */
-    #[Route('/create-customer', name: 'create_customer')]
-    public function hookCreateCustomer(): Response
-    {
+    // #[Route('/create-customer', name: 'create_customer')]
+    // public function hookCreateCustomer(): Response
+    // {
 
-        return new Response('ok');
-    }
+    //     return new Response('ok');
+    // }
 
     /**
      * Actions à effectuer lors de la modification d'un client dans pimcore
      */
-    #[Route('/update-customer', name: 'update_customer')]
-    public function hookUpdateCustomer(): Response
-    {
-        return new Response('Pas encore disponible');
-    }
+    // #[Route('/update-customer', name: 'update_customer')]
+    // public function hookUpdateCustomer(): Response
+    // {
+    //     return new Response('Pas encore disponible');
+    // }
 
     /**
      * Actions à effectuer lors de la suppression d'un client dans pimcore
      */
-    #[Route('/delete-customer', name: 'delete_customer')]
-    public function hookDeleteCustomer(): Response
-    {
-        return new Response('Pas encore disponible');
-    }
+    // #[Route('/delete-customer', name: 'delete_customer')]
+    // public function hookDeleteCustomer(): Response
+    // {
+    //     return new Response('Pas encore disponible');
+    // }
 
 
     public function hookUpdateDecli($params)
@@ -215,11 +217,10 @@ class PimcoreHookController extends DefaultController
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
         /** @var Product $product */
-        $product = $decli->getParent();
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateDecli($decli);
         // $result = '';
-        Outils::addLog('Modification d\'un produit: ' . $result, 1, [], 'NOMDULOG');
+        // Outils::addLog('Modification d\'un produit: ' . $result, 1, [], 'NOMDULOG');
         Outils::addLog('fin fonction hookUpdateDecli', 3, [], 'NOMDULOG');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
@@ -232,7 +233,21 @@ class PimcoreHookController extends DefaultController
         /** @var Product $product */
         $shopify_client = new ShopifyApiClient();
         $result = $shopify_client->deleteDecli($decli);
-        Outils::addLog('Suppression d\'une déclinaison: ' . $result, 1, [], 'NOMDULOG');
+        Outils::addLog('Suppression d\'une déclinaison: ' . json_encode($result), 1, [], 'NOMDULOG');
+        return new Response('<pre>' . json_encode([$result]) . '</pre>');
+    }
+
+    public function hookUpdatePriceSelling($params) {
+        Outils::addLog('fonction hookUpdatePriceSelling', 3);
+        
+        $pricing = $params['priceSelling'];   
+        $shopify_client = new ShopifyApiClient();
+        $decl = $pricing->getDecli();
+        if($decl->getClassName() != 'declinaison'){
+            return true;
+        }
+        $result = $shopify_client->updateDecliPrix($decl);
+
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
@@ -242,175 +257,173 @@ class PimcoreHookController extends DefaultController
      * @throws MissingArgumentException
      * @throws \JsonException
      */
-    #[Route('/update-decli-old', name: 'hook_update_decli-old')]
-    public function hookUpdateDecliOld($params): array|string
-    {
-        $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
-        $client = $this->getShopifyClient();
-        /**
-         * @var Declinaison $decli
-         */
-        $decli = $params['declinaison'];
-        if (!$id_product_shopify = Outils::getCrossId(obj: $decli->getParent(), source: $diffusion)) {
-            return true;
-        }
-        $options = [
-            'option1' => ['name' => null, 'value' => null, 'all_values' => []],
-            'option2' => ['name' => null, 'value' => null, 'all_values' => []],
-            'option3' => ['name' => null, 'value' => null, 'all_values' => []]
-        ];
-        $options['option1']['value'] = null;
-        $options['option2']['value'] = null;
-        $options['option3']['value'] = null;
-        foreach ($decli->getAttribut() as $attribute) {
-            $value = $attribute->getParent()->getName();
-            $name = $attribute->getName();
+    // #[Route('/update-decli-old', name: 'hook_update_decli-old')]
+    // public function hookUpdateDecliOld($params): array|string
+    // {
+    //     $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
+    //     $client = $this->getShopifyClient();
+    //     /**
+    //      * @var Declinaison $decli
+    //      */
+    //     $decli = $params['declinaison'];
+    //     if (!$id_product_shopify = Outils::getCrossId(obj: $decli->getParent(), source: $diffusion)) {
+    //         return true;
+    //     }
+    //     $options = [
+    //         'option1' => ['name' => null, 'value' => null, 'all_values' => []],
+    //         'option2' => ['name' => null, 'value' => null, 'all_values' => []],
+    //         'option3' => ['name' => null, 'value' => null, 'all_values' => []]
+    //     ];
+    //     $options['option1']['value'] = null;
+    //     $options['option2']['value'] = null;
+    //     $options['option3']['value'] = null;
+    //     foreach ($decli->getAttribut() as $attribute) {
+    //         $value = $attribute->getParent()->getName();
+    //         $name = $attribute->getName();
 
-            foreach ($options as $key => &$option) {
-                if ($name === $option['name'] || $option['name'] === null) {
-                    $option['name'] = $name;
-                    $option['value'] = $value;
-                    $option['all_values'][] = $value;
-                    break;
-                }
-            }
-            unset($option); // Important: annule la référence pour éviter les problèmes ultérieurs
-        }
-        $option1 = $options['option1'];
-        $option2 = $options['option2'];
-        $option3 = $options['option3'];
-        $variant = [
-//            'id' => Outils::getCrossId(obj: $decli, source: $this->diffusion) ?? null,
-//                        'product_id' => 1071559574,
-            'title' => join(' / ', array_map(function ($attribut) {
-                return $attribut->getName();
-            }, $decli->getAttribut())),
-            'price' => $decli->getPrix_vente(),
-            'cost' => $decli->getPrix_achat(),
-            'sku' => $decli->getReference_declinaison(),
-//            'position' => 1,
-            'inventory_policy' => self::INVENTORY_POLICY,
-            'compare_at_price' => null,
-            'fulfillment_service' => self::FULFILLMENT_SERVICE,
-            'inventory_management' => self::INVENTORY_MANAGEMENT,
-            'option1' => $option1['value'],
-            'option2' => $option2['value'],
-            'option3' => $option3['value'],
-//                        'created_at' => '2023-06-14T14:23:53-04:00',
-//                        'updated_at' => '2023-06-14T14:23:53-04:00',
-//                        'taxable' => true,
-            'barcode' => $decli->getEan13(),
-//                        'grams' => null,
-//                        'image_id' => null,
-            'weight' => $decli->getWeight(),
-            'weight_unit' => self::WEIGHT_UNIT,
-//                        'inventory_item_id' => 1070325026,
-//            'inventory_quantity' => $decli->getQuantity(),
-//                        'old_inventory_quantity' => 0,
-        ];
-        try {
-            if (($id_variant_shopify = Outils::getCrossId(obj: $decli, source: $diffusion)) !== 0) {
-                $result = $client->put(
-                    path: "products/$id_product_shopify/variants/$id_variant_shopify",
-                    body: ['variant' => $variant]
-                )->getDecodedBody();
-            } else {
-                $result = $client->post(
-                    path: "products/$id_product_shopify/variants",
-                    body: ['variant' => $variant]
-                )->getDecodedBody();
-                if (key_exists('variant', $result)) {
-                    Outils::addCrossid(object: $decli, source: $diffusion, ext_id: $result['variant']['id']);
-                }
-
-            }
-        } catch (ClientExceptionInterface|UninitializedContextException $e) {
-            $result = $e->getMessage();
-        }
-        Outils::addLog('Modification d\'une déclinaison: ' . json_encode($result), 1, [], 'NOMDULOG');
-
-        return new Response('ok');
-    }
+    //         foreach ($options as $key => &$option) {
+    //             if ($name === $option['name'] || $option['name'] === null) {
+    //                 $option['name'] = $name;
+    //                 $option['value'] = $value;
+    //                 $option['all_values'][] = $value;
+    //                 break;
+    //             }
+    //         }
+    //         unset($option); // Important: annule la référence pour éviter les problèmes ultérieurs
+    //     }
+    //     $option1 = $options['option1'];
+    //     $option2 = $options['option2'];
+    //     $option3 = $options['option3'];
+    //     $variant = [
+    //         'id' => Outils::getCrossId(obj: $decli, source: $this->diffusion) ?? null,
+    //         'product_id' => 1071559574,
+    //         'title' => join(' / ', array_map(function ($attribut) {
+    //             return $attribut->getName();
+    //         }, $decli->getAttribut())),
+    //         'price' => $decli->getPrix_vente(),
+    //         'cost' => $decli->getPrix_achat(),
+    //         'sku' => $decli->getReference_declinaison(),
+    //         'position' => 1,
+    //         'inventory_policy' => self::INVENTORY_POLICY,
+    //         'compare_at_price' => null,
+    //         'fulfillment_service' => self::FULFILLMENT_SERVICE,
+    //         'inventory_management' => self::INVENTORY_MANAGEMENT,
+    //         'option1' => $option1['value'],
+    //         'option2' => $option2['value'],
+    //         'option3' => $option3['value'],
+    //         'created_at' => '2023-06-14T14:23:53-04:00',
+    //         'updated_at' => '2023-06-14T14:23:53-04:00',
+    //         'taxable' => true,
+    //         'barcode' => $decli->getEan13(),
+    //         'grams' => null,
+    //         'image_id' => null,
+    //         'weight' => $decli->getWeight(),
+    //         'weight_unit' => self::WEIGHT_UNIT,
+    //         'inventory_item_id' => 1070325026,
+    //         'inventory_quantity' => $decli->getQuantity(),
+    //         'old_inventory_quantity' => 0,
+    //     ];
+    //     try {
+    //         if (($id_variant_shopify = Outils::getCrossId(obj: $decli, source: $diffusion)) !== 0) {
+    //             $result = $client->put(
+    //                 path: "products/$id_product_shopify/variants/$id_variant_shopify",
+    //                 body: ['variant' => $variant]
+    //             )->getDecodedBody();
+    //         } else {
+    //             $result = $client->post(
+    //                 path: "products/$id_product_shopify/variants",
+    //                 body: ['variant' => $variant]
+    //             )->getDecodedBody();
+    //             if (key_exists('variant', $result)) {
+    //                 Outils::addCrossid(object: $decli, source: $diffusion, ext_id: $result['variant']['id']);
+    //             }
+    //         }
+    //     } catch (ClientExceptionInterface|UninitializedContextException $e) {
+    //         $result = $e->getMessage();
+    //     }
+    //     Outils::addLog('Modification d\'une déclinaison: ' . json_encode($result), 1, [], 'NOMDULOG');
+    //     return new Response('ok');
+    // }
 
     /**
      * Actions à effectuer lors de la mise à jour/création d'un prix dans pimcore
      * @throws MissingArgumentException
      * @throws \JsonException
      */
-    #[Route('/update-price', name: 'hook_update_price')]
-    public function hookUpdatePrice($params): array|string
-    {
-        return new Response('ok');
-    }
+    // #[Route('/update-price', name: 'hook_update_price')]
+    // public function hookUpdatePrice($params): array|string
+    // {
+    //     return new Response('ok');
+    // }
 
     /**
      * Mise à jour d'une attribute value
      * @throws MissingArgumentException
      */
-    public function updateAttributeValue($params)
-    {
-        /**
-         * @var AttributValue $attribut_value
-         */
-        $attribut_value = $params['attributeValue'];
-        $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
-        $client = $this->getShopifyClient();
-        $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
-        $client = $this->getShopifyClient();
-        return new Response('ok');
-    }
+    // public function updateAttributeValue($params)
+    // {
+    //     /**
+    //      * @var AttributValue $attribut_value
+    //      */
+    //     $attribut_value = $params['attributeValue'];
+    //     $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
+    //     $client = $this->getShopifyClient();
+    //     $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
+    //     $client = $this->getShopifyClient();
+    //     return new Response('ok');
+    // }
 
     /**
      * @throws MissingArgumentException
      */
-    public function getShopifyClient(): Rest
-    {
-        $config = [];
-        $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
-        foreach ($diffusion->getConfig() as $conf) {
-            $config[$conf->getKey()] = $conf->getValeur();
-        }
-        Context::initialize(
-            apiKey: $apiKey ?? $config['shopify_api_key'],
-            apiSecretKey: $apiSecretKey ?? $config['shopify_api_secret'],
-            scopes: $scopes ?? $config['shopify_api_scope'],
-            hostName: $hostName ?? $config['shopify_api_hostname'],
-            sessionStorage: new FileSessionStorage('/tmp/php_sessions'),
-            apiVersion: $apiVersion ?? $config['shopify_api_version'],
-            isEmbeddedApp: false,
-        );
-        return new Rest(
-            domain: $hostName ?? $config['shopify_api_hostname'],
-            accessToken: $accessToken ?? $config['shopify_access_token'],
-        );
-    }
+    // public function getShopifyClient(): Rest
+    // {
+    //     $config = [];
+    //     $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
+    //     foreach ($diffusion->getConfig() as $conf) {
+    //         $config[$conf->getKey()] = $conf->getValeur();
+    //     }
+    //     Context::initialize(
+    //         apiKey: $apiKey ?? $config['shopify_api_key'],
+    //         apiSecretKey: $apiSecretKey ?? $config['shopify_api_secret'],
+    //         scopes: $scopes ?? $config['shopify_api_scope'],
+    //         hostName: $hostName ?? $config['shopify_api_hostname'],
+    //         sessionStorage: new FileSessionStorage('/tmp/php_sessions'),
+    //         apiVersion: $apiVersion ?? $config['shopify_api_version'],
+    //         isEmbeddedApp: false,
+    //     );
+    //     return new Rest(
+    //         domain: $hostName ?? $config['shopify_api_hostname'],
+    //         accessToken: $accessToken ?? $config['shopify_access_token'],
+    //     );
+    // }
 
     /**
      * @throws MissingArgumentException
      */
-    public function hookUpdatePriceSelling($params)
-    {
-        /**
-         * @var \Pimcore\Model\DataObject\PriceSelling $price_selling
-         */
-        $price_selling = $params['priceSelling'];
-        $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
-        $client = $this->getShopifyClient();
-        Outils::addLog('Modification d\'un prix (debut): ' . 'products/' . Outils::getCrossId($price_selling->getParent(), $diffusion) . '/variants/' . Outils::getCrossId($price_selling->getDecli(), $diffusion), 1, [], 'NOMDULOG');
+    // public function hookUpdatePriceSelling($params)
+    // {
+    //     /**
+    //      * @var \Pimcore\Model\DataObject\PriceSelling $price_selling
+    //      */
+    //     $price_selling = $params['priceSelling'];
+    //     $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
+    //     $client = $this->getShopifyClient();
+    //     Outils::addLog('Modification d\'un prix (debut): ' . 'products/' . Outils::getCrossId($price_selling->getParent(), $diffusion) . '/variants/' . Outils::getCrossId($price_selling->getDecli(), $diffusion), 1, [], 'NOMDULOG');
 
-        try {
-            $result = $client->post(
-                path: 'products/' . Outils::getCrossId($price_selling->getParent(), $diffusion) . '/variants/' . Outils::getCrossId($price_selling->getDecli(), $diffusion),
-                body: [
-                    'variant' => [
-                        'price' => $price_selling->getPrice_ht(),
-                    ]
-                ]
-            )->getDecodedBody();
-        } catch (\JsonException|ClientExceptionInterface|UninitializedContextException $e) {
-            $result = $e->getMessage();
-        }
-        Outils::addLog('Modification d\'un prix: ' . json_encode($result), 1, [], 'NOMDULOG');
-        return new Response('ok');
-    }
+    //     try {
+    //         $result = $client->post(
+    //             path: 'products/' . Outils::getCrossId($price_selling->getParent(), $diffusion) . '/variants/' . Outils::getCrossId($price_selling->getDecli(), $diffusion),
+    //             body: [
+    //                 'variant' => [
+    //                     'price' => $price_selling->getPrice_ht(),
+    //                 ]
+    //             ]
+    //         )->getDecodedBody();
+    //     } catch (\JsonException|ClientExceptionInterface|UninitializedContextException $e) {
+    //         $result = $e->getMessage();
+    //     }
+    //     Outils::addLog('Modification d\'un prix: ' . json_encode($result), 1, [], 'NOMDULOG');
+    //     return new Response('ok');
+    // }
 }

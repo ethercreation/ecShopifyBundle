@@ -681,11 +681,13 @@ class DefaultController extends FrontendController
     #[Route('/ec_shopify/install')]
     public function installAction(Request $request): Response
     {
+
         if (!Dataobject::getByPath('/Diffusion/Shopify')) {
             $diffusion = new DataObject\Diffusion();
             $diffusion->setParentID(WebsiteSetting::getByName('folderDiffusion')->getData());
             $diffusion->setKey('Shopify');
             $diffusion->setName('Shopify');
+            $diffusion->setPlateforme('Shopify');
             $diffusion->setPublished(true);
             $diffusion->save();
             $lstConfig = $diffusion->getConfig();
@@ -695,8 +697,8 @@ class DefaultController extends FrontendController
         }
         
 
-        //Nomenclature BL
-        if (!Dataobject::getByPath('/Diffusion/Shopify/shopify_access_token')) {
+        // //Nomenclature BL
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_access_token')) {
             $config = new DataObject\Config();
             $config->setParentID($diffusion->getId());
             $config->setKey('shopify_access_token');
@@ -709,7 +711,7 @@ class DefaultController extends FrontendController
         }
 
         //Nomenclature BL
-        if (!Dataobject::getByPath('/Diffusion/Shopify/shopify_api_key')) {
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_api_key')) {
             $config = new DataObject\Config();
             $config->setParentID($diffusion->getId());
             $config->setKey('shopify_api_key');
@@ -722,7 +724,7 @@ class DefaultController extends FrontendController
         }
 
         //Nomenclature BL
-        if (!Dataobject::getByPath('/Diffusion/Shopify/shopify_api_secret')) {
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_api_secret')) {
             $config = new DataObject\Config();
             $config->setParentID($diffusion->getId());
             $config->setKey('shopify_api_secret');
@@ -735,7 +737,7 @@ class DefaultController extends FrontendController
         }
 
         //Nomenclature BL
-        if (!Dataobject::getByPath('/Diffusion/Shopify/shopify_api_hostname')) {
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_api_hostname')) {
             $config = new DataObject\Config();
             $config->setParentID($diffusion->getId());
             $config->setKey('shopify_api_hostname');
@@ -748,7 +750,7 @@ class DefaultController extends FrontendController
         }
 
         //Nomenclature BL
-        if (!Dataobject::getByPath('/Diffusion/Shopify/shopify_api_scope')) {
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_api_scope')) {
             $config = new DataObject\Config();
             $config->setParentID($diffusion->getId());
             $config->setKey('shopify_api_scope');
@@ -761,7 +763,7 @@ class DefaultController extends FrontendController
         }
 
         //Nomenclature BL
-        if (!Dataobject::getByPath('/Diffusion/Shopify/shopify_api_version')) {
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_api_version')) {
             $config = new DataObject\Config();
             $config->setParentID($diffusion->getId());
             $config->setKey('shopify_api_version');
@@ -773,7 +775,7 @@ class DefaultController extends FrontendController
             $config->save();
         }
         
-        if (!Dataobject::getByPath('/Diffusion/Shopify/shopify_location_id')) {
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_location_id')) {
             $config = new DataObject\Config();
             $config->setParentID($diffusion->getId());
             $config->setKey('shopify_location_id');
@@ -785,17 +787,27 @@ class DefaultController extends FrontendController
             $config->save();
         }
 
-        if (!Dataobject::getByPath('/Diffusion/Hadrien/action_after_product_delete')) {
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/action_after_product_delete')) {
             $config = new DataObject\Config();
-            $config->setParentID($diffusion->getId());
-            $config->setKey('action_after_product_delete');
-            $config->setIdconfig('action_after_product_delete');
-            $config->setPublished(true);
-            $config->setName('Action sur Shopify après une suppression d\'article sur le Pim');
-            $config->setTypeList('[{"key":"Supprimer le produit", "value":1}, {"key":Passage en brouillon", "value":2}]');
-            $config->setTypeConfig('select');
-            $config->setValeur(1);
-            $config->save();
+            $config->setParentID($diffusion->getId())
+                ->setKey('action_after_product_delete')
+                ->setIdconfig('action_after_product_delete')
+                ->setName('Suppresion d\'article Shopify après une suppression d\'article sur le Pim, true suppresion, false passage en brouillon')
+                ->setValeur(0)
+                ->setPublished(true)
+                ->setTypeConfig('checkbox')
+                ->save();
+        }
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/import_product')) {
+            $config = new DataObject\Config();
+            $config->setParentID($diffusion->getId())
+                ->setKey('import_product')
+                ->setIdconfig('import_product')
+                ->setName('Action lors de l\'import de produit Shopify, true mise à jour base pim, false reset')
+                ->setValeur(0)
+                ->setPublished(true)
+                ->setTypeConfig('checkbox')
+                ->save();
         }
 
         // if (!Dataobject::getByPath('/Diffusion/Shopify/desc_lenght')) {
