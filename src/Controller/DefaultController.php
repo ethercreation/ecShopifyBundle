@@ -774,6 +774,17 @@ class DefaultController extends FrontendController
             $config->setValeur('');
             $config->save();
         }
+        if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_webhook_secret')) {
+            $config = new DataObject\Config();
+            $config->setParentID($diffusion->getId());
+            $config->setKey('shopify_webhook_secret');
+            $config->setIdconfig('shopify_webhook_secret');
+            $config->setPublished(true);
+            $config->setName('Shopify webhook secret');
+            $config->setTypeConfig('input');
+            $config->setValeur('');
+            $config->save();
+        }
         
         if (!Dataobject::getByPath('/Diffusion/'.$diffusion->getKey().'/shopify_location_id')) {
             $config = new DataObject\Config();

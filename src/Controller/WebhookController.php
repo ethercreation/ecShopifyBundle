@@ -105,6 +105,18 @@ class WebhookController extends DefaultController
         }
     }
 
+
+    public function verify_webhook($data, $hmac_header, $shopify_secret) {
+        Outils::addLog('(WebHookController:' . __LINE__ . ') - ', 3);
+        Outils::addLog('(WebHookController:' . __LINE__ . ') - ' . json_encode($data), 3);
+        Outils::addLog('(WebHookController:' . __LINE__ . ') - ' . json_encode($hmac_header), 3);
+        Outils::addLog('(WebHookController:' . __LINE__ . ') - ' . json_encode($shopify_secret), 3);
+        // $SHOPIFY_SECRET = '4c8870f7e46b95f5d8b4bc128d9779710c8db5e81e55e82cb078dc2c27da6abc';
+        $calculated_hmac = base64_encode(hash_hmac('sha256', $data, $shopify_secret, true));
+        Outils::addLog('(WebHookController:' . __LINE__ . ') - ', 3);
+        return ($hmac_header == $calculated_hmac);
+    }
+
     /**
      * ## Webhook - Création d'une commande
      *
@@ -125,6 +137,33 @@ class WebhookController extends DefaultController
         
         // $data = json_decode($json, true);
         $data = json_decode($request->getContent(), true);
+        $hmac_header = $_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'];
+        // Outils::addLog('(WebHookController:' . __LINE__ . ') - ' . json_encode($hmac_header), 3);
+        $diffusion = false;
+        $listIdDiffs = Outils::query('SELECT id FROM object_'.Outils::getIDClass('diffusion').' WHERE published = 1 AND plateforme = "Shopify" AND (archive IS NULL OR archive = 0)');
+        // Outils::addLog('(WebHookController:' . __LINE__ . ') - ' . json_encode($listIdDiffs), 3);
+        foreach($listIdDiffs as $id){
+            // $diffName = DataObject::getById($id['id']);
+            // Outils::addLog($diffName->getName(), 1);
+            // $diffusion = Diffusion::getByPath('/Diffusion/'.$diffName->getName());
+            
+            $diffusion = Diffusion::getById($id['id']);
+            // Outils::addLog('(WebHookController:' . __LINE__ . ') - ' . json_encode($diffusion), 3);
+            $secret = Outils::getConfigByName($diffusion, 'shopify_webhook_secret');
+            // Outils::addLog('(WebHookController:' . __LINE__ . ') - ' . json_encode($secret), 3);
+            $test = $this->verify_webhook($request->getContent(), $hmac_header, $secret);
+            // Outils::addLog('(WebHookController:' . __LINE__ . ') - ' . json_encode($test), 3);
+            if($test){
+                break;
+            }
+               
+        }
+        // Outils::addLog('(WebHookController:' . __LINE__ . ') - ', 3);
+        if(!$diffusion){
+            // Outils::addLog('(WebHookController:' . __LINE__ . ') - Commande pas Shopify', 3);
+            return true;
+        }
+
         if (!array_key_exists('id', $data)) {
             $data = $data['order'];
         }
@@ -208,7 +247,7 @@ class WebhookController extends DefaultController
         //dump(json_encode($transformedData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE));
         // $diffusion = Diffusion::getById(self::ID_DIFFUSION);
         // $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
-        $diffusion = Diffusion::getByPath('/Diffusion/Hadrien');
+        // $diffusion = Diffusion::getByPath('/Diffusion/Hadrien');
         Outils::importOrder($diffusion->getId(), json_encode($transformedData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE));
         Outils::addLog('FIN CREA COMMANDDE', 3, [], 'NOMDULOG'); 
         return new Response(content: '<pre>OK</pre>', status: 200);

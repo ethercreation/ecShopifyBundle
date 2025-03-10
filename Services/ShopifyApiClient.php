@@ -427,7 +427,7 @@ class ShopifyApiClient extends ecShopifyBundle
             }';
             try{
                 $response = $this->client->query(['query' => $query])->getDecodedBody();
-                Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+                // Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
             } catch
             (ClientExceptionInterface $e) {
                 return $e->getMessage();
@@ -477,7 +477,7 @@ class ShopifyApiClient extends ecShopifyBundle
             ];
             try{
                 $response = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-                Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+                // Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
             } catch
             (ClientExceptionInterface $e) {
                 return $e->getMessage();
@@ -667,13 +667,13 @@ class ShopifyApiClient extends ecShopifyBundle
         // Outils::addLog(json_encode($categories), 3);
         if(!empty($categories)){
             // $listCateg = $categories[$maxID];
-                            Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégories ' . json_encode($categories), 3); 
+                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégories ' . json_encode($categories), 3); 
             foreach($categories as $listCateg){
-                Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'listCateg ' . json_encode($listCateg), 3); 
+                // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'listCateg ' . json_encode($listCateg), 3); 
                 foreach($listCateg['ids'] as $key => $id){
                     $cat = DataObject::getById($id);
                     $halfCrossIDCateg = Outils::getCrossid($cat, $this->diffusion);
-                    Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'data ' . json_encode(['key' => $key,'id' => $id, 'halfCrossIDCateg' => $halfCrossIDCateg]), 3); 
+                    // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'data ' . json_encode(['key' => $key,'id' => $id, 'halfCrossIDCateg' => $halfCrossIDCateg]), 3); 
                     // Outils::addLog('halfcross', 3);
                     // Outils::addLog(json_encode($halfCrossID), 3);
                     // Outils::addLog(json_encode($id), 3);
@@ -703,9 +703,9 @@ class ShopifyApiClient extends ecShopifyBundle
                         ];
                         try{
                             $response = [];
-                            Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie variable ' . json_encode($variables), 3); 
+                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie variable ' . json_encode($variables), 3); 
                             $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-                            Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie response ' . json_encode($response), 3); 
+                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie response ' . json_encode($response), 3); 
                             // Outils::addLog('REPONSE CREATION COLLECTION', 3);
                             // Outils::addLog(json_encode($response), 3);
                         } catch
@@ -839,7 +839,7 @@ class ShopifyApiClient extends ecShopifyBundle
                         "vendor" => $shopify_product['product']['vendor'],
                     ],
                 ];
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'variables creation produit ' . json_encode($variables) , 3); 
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'variables creation produit ' . json_encode($variables) , 3); 
                 $query = 'mutation ProductCreate($input: ProductInput!) {
                     productCreate(input: $input) {
                         product {
@@ -963,8 +963,8 @@ class ShopifyApiClient extends ecShopifyBundle
                     }
                   }';
                 $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') variables ' .json_encode($variables), 3);                
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result), 3);                
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') variables ' .json_encode($variables), 3);                
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result), 3);                
             } catch
             (ClientExceptionInterface $e) {
                 Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
@@ -1701,8 +1701,8 @@ class ShopifyApiClient extends ecShopifyBundle
                 }
                 }';
             $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') variables ' .json_encode($variables), 3);                
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result), 3);                
+            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') variables ' .json_encode($variables), 3);                
+            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result), 3);                
         } catch
         (ClientExceptionInterface $e) {
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
@@ -1825,7 +1825,7 @@ class ShopifyApiClient extends ecShopifyBundle
         ];
         try{
             $response = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-            Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+            // Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
         } catch
         (ClientExceptionInterface $e) {
             return $e->getMessage();
@@ -2208,7 +2208,7 @@ class ShopifyApiClient extends ecShopifyBundle
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
                 $prodVar = $response['data']['productVariantsBulkCreate']['productVariants'];
-                Outils::addLog(json_encode($response), 3); 
+                // Outils::addLog(json_encode($response), 3); 
             } catch
             (ClientExceptionInterface $e) {
                 Outils::addLog('ShopifyAPiClient ' . __LINE__ . $e->getMessage(), 3);
@@ -2218,25 +2218,25 @@ class ShopifyApiClient extends ecShopifyBundle
                 return true;
             }
             $prodVar = reset($prodVar);
-            Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($prodVar), 3);
+            // Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($prodVar), 3);
             if(is_array($prodVar) && isset($prodVar['id'])){
                 $completeId = $prodVar['id'];
                 $slashedId = explode('/', $completeId);
                 $id = end($slashedId);
-                Outils::addLog('addCrossid ' . __LINE__ , 3);
+                // Outils::addLog('addCrossid ' . __LINE__ , 3);
                 $temp = [];
                 $crossIDs = $decli->getCrossid(); 
                 foreach($crossIDs as $cross){
                     $temp[] = $cross->getData();
                 }
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($temp), 3);
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($temp), 3);
                 Outils::addCrossid(object: $decli, source: $this->diffusion, ext_id: $id);
                 $temp = [];
                 $crossIDs = $decli->getCrossid(); 
                 foreach($crossIDs as $cross){
                     $temp[] = $cross->getData();
                 }
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($temp), 3);
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($temp), 3);
             }
      
         }
@@ -2317,7 +2317,7 @@ class ShopifyApiClient extends ecShopifyBundle
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
                 // Outils::addLog(json_encode($response), 3);
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response), 3); 
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response), 3); 
             } catch
             (ClientExceptionInterface $e) {
                 Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
