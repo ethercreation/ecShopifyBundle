@@ -898,7 +898,7 @@ class DefaultController extends FrontendController
             $cron->setListStages('ImportProductShopify');
             $cron->setToken(md5(time()));
             $cron->setPublished(true);
-            $cron->setStages(array('\bundles\ecShopifyBundle\Controller\ImportController::cronImportShopify'));
+            $cron->setStages(array('\bundles\ecShopifyBundle\src\Controller\ImportController::cronImportShopify'));
             $cron->save();
         }
 
@@ -912,7 +912,7 @@ class DefaultController extends FrontendController
             $cron->setToken(md5(time()));
             $cron->setPublished(true);
             // $cron->setVisibility('1');
-            $cron->setStages(array('\bundles\ecShopifyBundle\Controller\MigrationController::cronGetFile'));
+            $cron->setStages(array('\bundles\ecShopifyBundle\src\Controller\MigrationController::cronGetFile'));
             $cron->save();
         }
 
