@@ -29,6 +29,7 @@ use Shopify\Auth\FileSessionStorage;
 use Shopify\Clients\Graphql;
 use Shopify\Context;
 use bundles\ecMiddleBundle\Services\DbFile;
+use Google\Service\BeyondCorp\Resource\V;
 use Pimcore\Model\WebsiteSetting;
 
 
@@ -80,13 +81,17 @@ class MigrationController extends FrontendController
         $data = $request->query->all();
         
         $client = self::declareClient();
+        // $retour = var_export($client, true);
+        // return json_encode($client);
 
         // $retour = $this->cronGetFile([]);
-        // $retour = $this->getProductsTest();
+        $retour = $this->getProducts();
         // $retour = $this->getMetafieldDefinition();
         // $retour = $this->cronFillCatalog([]);
         // $retour = self::getMetaobjectByID();
         // $retour = self::getProductByID('gid://shopify/Product/9873437131074');
+
+        // return new JsonResponse($retour, 200);
         return new JsonResponse([$retour ?? 'OK'], 200);
 
         
@@ -348,9 +353,9 @@ class MigrationController extends FrontendController
         }';
         
         $retour =  $client->query(["query" => $query])->getDecodedBody();
-        // return $retour;
         
         if (!isset($retour['data']['products']['edges'][0])) { // Retour incorrect
+            Outils::addLog('(EcShopify ('.__FUNCTION__.') :' . __LINE__ . ') - Erreur lors du retour : '.var_export($retour, true), 3);
             return false;
         }
 
@@ -450,12 +455,13 @@ class MigrationController extends FrontendController
         $retour =  $client->query(["query" => $query])->getDecodedBody();
 
         if (!isset($retour['data']['product'])) {
+            Outils::addLog('(EcShopify ('.__FUNCTION__.') :' . __LINE__ . ') - Erreur lors du retour : '.var_export($retour, true), 3);
             return false;
         }
 
         $ret = DbFile::buildFromArray([$retour['data']['product']], $fileName, false, [get_class(), 'completeFields']);
         if (!is_numeric($ret)) {
-            Outils::addLog('(EcShopify ('.__FUNCTION__.') :' . __LINE__ . ') - Erreur lors de la création du DbFile '.$fileName.' : '.var_export($ret, true), 1);
+            Outils::addLog('(EcShopify ('.__FUNCTION__.') :' . __LINE__ . ') - Erreur lors de la création du DbFile '.$fileName.' : '.var_export($ret, true), 3);
             return false;
         }
         
@@ -582,9 +588,11 @@ class MigrationController extends FrontendController
             // Appel GraphQL
             $retour = $this->{$fileInfos['method']}($cursor);
             if (false === $retour) { // Retour incorrect
+                Outils::addLog('(EcShopify ('.__FUNCTION__.') :' . __LINE__ . ') - Erreur lors de l\'appel '.$fileInfos['method'].' : '.var_export($retour, true), 3);
                 return false;
             }
             if (empty($retour['items'])) { // Retour vide
+                Outils::addLog('(EcShopify ('.__FUNCTION__.') :' . __LINE__ . ') - Retour vide lors de l\'appel '.$fileInfos['method'].' : '.var_export($retour, true), 3);
                 return false;
             }
 
