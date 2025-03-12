@@ -317,26 +317,39 @@ class ImportController extends FrontendController
         // Verif si déjà crossid
         $idPim = Outils::getExist($prod->id, $id_diffusion, 'crossid', 'product');
         if ($idPim > 0) {
-            return 'PS ' . $prod->id . ' - OK by ID ' . $idPim;
+            Outils::addLog('Shopify ' . $prod->id . ' - OK by ID ' . $idPim);
+            return 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
         }
 
         // Verif si EAN13-
         if (strlen($prod->ean13) == 13 && $prod->ean13 != '0000000000000') {
-            $idPim = Outils::getExist($prod->ean13, $id_diffusion, 'ean13', 'product');
+            $idPim = Outils::getExist($prod->ean13, "", 'ean13', 'product');
             $diff = $diffusion;
             if ($idPim > 0) {
+                Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $idPim);
                 return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $idPim;
             }
         }
 
         // Verif si SKU
-        if ($prod->reference) {
-            $idPim = Outils::getExist($prod->reference, $id_diffusion, 'reference', 'product');
+        if ($decli->reference_declinaison) {
+            $idPimDecli = Outils::getExist($decli->reference_declinaison, '', 'crossid', 'declinaison');
+            $idPim = DataObject::getById($idPimDecli)->getParentID();
             $diff = $diffusion;
             if ($idPim > 0) {
-                return 'Shopify ' . $prod->id . ' - OK by sku ' . $idPim;
+                Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decli->reference_declinaison . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $idPimDecli);
+                return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decli->reference_declinaison.' - IDPIM '.$idPim.'  - ID DECLI '.$idPimDecli;
             }
         }
+
+        // // Verif si SKU
+        // if ($prod->reference) {
+        //     $idPim = Outils::getExist($prod->reference, $id_diffusion, 'reference', 'product');
+        //     $diff = $diffusion;
+        //     if ($idPim > 0) {
+        //         return 'Shopify ' . $prod->id . ' - OK by sku ' . $idPim;
+        //     }
+        // }
 
         $tabCateg = array();
         foreach ($categ as $json_category) {
