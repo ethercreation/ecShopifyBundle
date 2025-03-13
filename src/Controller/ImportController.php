@@ -326,23 +326,22 @@ class ImportController extends FrontendController
         // Verif si EAN13-
         if (strlen($prod->ean13) == 13 && $prod->ean13 != '0000000000000') {
             $idPim = Outils::getExist($prod->ean13, "", 'ean13', 'product');
-            $diff = $diffusion;
-            if ($idPim > 0) {
-                Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $idPim);
-                return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $idPim;
+            if ($idPim) {
+                Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13.' - IDPIM '.$idPim);
+                return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13;
             }
         }
 
         // Verif si SKU
         if ($prod->reference) {
             $idPimDecli = Outils::getExist($prod->reference, '', 'crossid', 'declinaison');
-            if ($idPimDecli > 0) {
-                dump($idPimDecli);
-                $idPim = DataObject::getById($idPimDecli)->getParentID();
+            if ($idPimDecli) {
+                $infoDecli = json_decode($idPimDecli, true);
+                $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
                 $diff = $diffusion;
                 if ($idPim > 0) {
-                    Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $idPimDecli);
-                    return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $idPimDecli;
+                    Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
+                    return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
                 }
             }
         }
