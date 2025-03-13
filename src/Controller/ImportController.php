@@ -328,9 +328,11 @@ class ImportController extends FrontendController
             $idPim = Outils::getExist($prod->ean13, "", 'ean13', 'product');
             if ($idPim && $idPim != '') {
                 $idPims = json_decode($idPim, true);
-                Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13.' - IDPIM '.$idPim);
-                Outils::addCrossid($idPims[0]['id'], $id_diffusion, $prod->id, false);
-                return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13;
+                if (is_array($idPims) && array_key_exists(0, $idPims)) {
+                    Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13 . ' - IDPIM ' . $idPim);
+                    Outils::addCrossid($idPims[0]['id'], $id_diffusion, $prod->id, false);
+                    return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13;
+                }
             }
         }
 
@@ -339,13 +341,15 @@ class ImportController extends FrontendController
             $idPimDecli = Outils::getExist($prod->reference, '', 'crossid', 'declinaison');
             if ($idPimDecli && $idPimDecli != '') {
                 $infoDecli = json_decode($idPimDecli, true);
-                $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
-                $diff = $diffusion;
-                if ($idPim > 0) {
-                    Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $prod->id, false);
-                    Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
-                    Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
-                    return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
+                if (is_array($infoDecli) && array_key_exists(0, $infoDecli)) {
+                    $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
+                    $diff = $diffusion;
+                    if ($idPim > 0) {
+                        Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $prod->id, false);
+                        Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
+                        Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
+                        return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
+                    }
                 }
             }
         }
