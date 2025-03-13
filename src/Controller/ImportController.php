@@ -327,7 +327,9 @@ class ImportController extends FrontendController
         if (strlen($prod->ean13) == 13 && $prod->ean13 != '0000000000000') {
             $idPim = Outils::getExist($prod->ean13, "", 'ean13', 'product');
             if ($idPim) {
+                $idPims = json_decode($idPim, true);
                 Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13.' - IDPIM '.$idPim);
+                Outils::addCrossid($idPims[0]['id'], $id_diffusion, $prod->id, false);
                 return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13;
             }
         }
@@ -340,6 +342,8 @@ class ImportController extends FrontendController
                 $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
                 $diff = $diffusion;
                 if ($idPim > 0) {
+                    Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $prod->id, false);
+                    Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
                     Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
                     return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
                 }
