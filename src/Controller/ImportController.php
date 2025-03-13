@@ -336,11 +336,13 @@ class ImportController extends FrontendController
         // Verif si SKU
         if ($prod->reference) {
             $idPimDecli = Outils::getExist($prod->reference, '', 'crossid', 'declinaison');
-            $idPim = DataObject::getById($idPimDecli)->getParentID();
-            $diff = $diffusion;
-            if ($idPim > 0) {
-                Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $idPimDecli);
-                return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference.' - IDPIM '.$idPim.'  - ID DECLI '.$idPimDecli;
+            if ($idPimDecli) {
+                $idPim = DataObject::getById($idPimDecli)->getParentID();
+                $diff = $diffusion;
+                if ($idPim > 0) {
+                    Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $idPimDecli);
+                    return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $idPimDecli;
+                }
             }
         }
 
