@@ -288,11 +288,13 @@ class ImportController extends FrontendController
                     $values = json_decode($metafield['node']['value'], true);
                     $idF = $this->nettoyeId($metafield['node']['id']);
                     $feature[] = ['name' => [1 => $name], 'id' => $idF];
-                    foreach ($values as $gid) {
-                        $metaobjects = json_decode($datas['metaObject'], true);
-                        if (isset($metaobjects[$gid])) {
-                            $displayName = $metaobjects[$gid]['displayName'];
-                            $value[] = ['custom' => 0, 'value' => [1 => $displayName], 'id_feature' => $idF, 'id' => $this->nettoyeId($metaobjects[$gid]['id'])];
+                    if (is_array($values)) {
+                        foreach ($values as $gid) {
+                            $metaobjects = json_decode($datas['metaObject'], true);
+                            if (isset($metaobjects[$gid])) {
+                                $displayName = $metaobjects[$gid]['displayName'];
+                                $value[] = ['custom' => 0, 'value' => [1 => $displayName], 'id_feature' => $idF, 'id' => $this->nettoyeId($metaobjects[$gid]['id'])];
+                            }
                         }
                     }
                 }
