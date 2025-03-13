@@ -154,6 +154,17 @@ class ImportController extends FrontendController
         return $tab[count($tab) - 1];
     }
 
+    public function updateObjectPrice($id) {
+        $lstPrix =  Outils::query('SELECT o.id as id
+        FROM object_' . Outils::getIDClass('priceSelling').' o                     
+        WHERE (`parentId` = '.(int)$id.' OR decli__id = '.(int)$id.')
+        AND (o.archive IS NULL OR o.archive = 0)');
+        foreach ($lstPrix as $prix) {
+            $obj = DataObject::getById($prix['id']);
+            $obj->forcequeue = true;
+            $obj->save();
+        }
+    }
     /**
      * @throws \Exception
      */
@@ -334,6 +345,7 @@ class ImportController extends FrontendController
                     $objpim = DataObject::getById($idPims[0]['id']);
                     $objpim->forcequeue = true;
                     $objpim->save();
+                    $this->updateObjectPrice($idPims[0]['id']);
                     return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13;
                 }
             }
@@ -353,6 +365,7 @@ class ImportController extends FrontendController
                         $objpim = DataObject::getById($idPim);
                         $objpim->forcequeue = true;
                         $objpim->save();
+                        $this->updateObjectPrice($infoDecli[0]['id']);
                         Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
                         return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
                     }
