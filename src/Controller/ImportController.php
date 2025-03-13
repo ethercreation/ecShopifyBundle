@@ -326,7 +326,7 @@ class ImportController extends FrontendController
         // Verif si EAN13-
         if (strlen($prod->ean13) == 13 && $prod->ean13 != '0000000000000') {
             $idPim = Outils::getExist($prod->ean13, "", 'ean13', 'product');
-            if ($idPim) {
+            if ($idPim && $idPim != '') {
                 $idPims = json_decode($idPim, true);
                 Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13.' - IDPIM '.$idPim);
                 Outils::addCrossid($idPims[0]['id'], $id_diffusion, $prod->id, false);
@@ -337,9 +337,8 @@ class ImportController extends FrontendController
         // Verif si SKU
         if ($prod->reference) {
             $idPimDecli = Outils::getExist($prod->reference, '', 'crossid', 'declinaison');
-            if ($idPimDecli) {
+            if ($idPimDecli && $idPimDecli != '') {
                 $infoDecli = json_decode($idPimDecli, true);
-                dump($infoDecli);
                 $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
                 $diff = $diffusion;
                 if ($idPim > 0) {
