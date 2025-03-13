@@ -339,6 +339,7 @@ class ImportController extends FrontendController
             $idPimDecli = Outils::getExist($prod->reference, '', 'crossid', 'declinaison');
             if ($idPimDecli) {
                 $infoDecli = json_decode($idPimDecli, true);
+                dump($infoDecli);
                 $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
                 $diff = $diffusion;
                 if ($idPim > 0) {
