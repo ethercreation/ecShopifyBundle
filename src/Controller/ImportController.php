@@ -331,6 +331,9 @@ class ImportController extends FrontendController
                 if (is_array($idPims) && array_key_exists(0, $idPims)) {
                     Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13 . ' - IDPIM ' . $idPim);
                     Outils::addCrossid($idPims[0]['id'], $id_diffusion, $prod->id, false);
+                    $objpim = DataObject::getById($idPims[0]['id']);
+                    $objpim->forcequeue = true;
+                    $objpim->save();
                     return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13;
                 }
             }
@@ -347,6 +350,9 @@ class ImportController extends FrontendController
                     if ($idPim > 0) {
                         Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $prod->id, false);
                         Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
+                        $objpim = DataObject::getById($idPim);
+                        $objpim->forcequeue = true;
+                        $objpim->save();
                         Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
                         return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
                     }
