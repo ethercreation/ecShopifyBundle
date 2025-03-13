@@ -335,7 +335,7 @@ class ImportController extends FrontendController
 
         // Verif si SKU
         if ($prod->reference) {
-            $idPimDecli = Outils::getExist($decli->reference, '', 'crossid', 'declinaison');
+            $idPimDecli = Outils::getExist($prod->reference, '', 'crossid', 'declinaison');
             $idPim = DataObject::getById($idPimDecli)->getParentID();
             $diff = $diffusion;
             if ($idPim > 0) {
