@@ -613,7 +613,7 @@ class ShopifyApiClient extends ecShopifyBundle
         $diffusionActive = $pimcore_product->getDiffusions_active();
         $tabIdDiffAct = [];
 
-        if(!in_array($tabIdDiffAct)){
+        if(!is_array($tabIdDiffAct)){
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas a diffusé car pas de diffusion'); 
             return true;
         }
