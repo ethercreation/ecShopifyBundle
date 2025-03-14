@@ -384,12 +384,12 @@ class ShopifyApiClient extends ecShopifyBundle
 
     public function updateStock(Product $pimcore_product)
     {
-        Outils::addLog('updateStock', 3, [], 'NOMDULOG');
+        Outils::addLog('updateStock');
 
         // Verif si produit actif
         $productActive = $pimcore_product->isPublished();
         if(!$productActive){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit désactivé', 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit désactivé'); 
             return true;
         }
         $diffusionActive = $pimcore_product->getDiffusions_active();
@@ -399,7 +399,7 @@ class ShopifyApiClient extends ecShopifyBundle
            
         }
         if(!in_array($this->diffusion->getId(), $tabIdDiffAct)){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé', 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé'); 
             return true;
         }
 
@@ -427,14 +427,14 @@ class ShopifyApiClient extends ecShopifyBundle
             }';
             try{
                 $response = $this->client->query(['query' => $query])->getDecodedBody();
-                // Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+                // Outils::addLog(json_encode($response));
             } catch
             (ClientExceptionInterface $e) {
                 return $e->getMessage();
             } catch (UninitializedContextException $e) {
                 return $e->getMessage();
             }
-            // Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+            // Outils::addLog(json_encode($response));
             if(is_null($response['data']['inventoryItems']['edges'])){
                 return true;
             }
@@ -477,14 +477,14 @@ class ShopifyApiClient extends ecShopifyBundle
             ];
             try{
                 $response = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-                // Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+                // Outils::addLog(json_encode($response));
             } catch
             (ClientExceptionInterface $e) {
                 return $e->getMessage();
             } catch (UninitializedContextException $e) {
                 return $e->getMessage();
             }
-            // Outils::addLog('retour updateStock', 3, [], 'NOMDULOG');
+            // Outils::addLog('retour updateStock');
             
         }
         // if (count($variants) === 0) {
@@ -501,12 +501,12 @@ class ShopifyApiClient extends ecShopifyBundle
         //         ],
         //     ];
         // }
-        Outils::addLog('fin updateStock', 3, [], 'NOMDULOG');
+        Outils::addLog('fin updateStock');
         return true;
     }
     // public function updateStock_old(Product $pimcore_product)
     // {
-    //     Outils::addLog('updateStock', 3, [], 'NOMDULOG');
+    //     Outils::addLog('updateStock');
 
     //     $variants = [];
     //     foreach ($pimcore_product->getDecli() as $variant) {
@@ -572,7 +572,7 @@ class ShopifyApiClient extends ecShopifyBundle
 
         
     //     try {
-    //         Outils::addLog('Mise à jour du produit (before) :' . json_encode($shopify_product), 3, [], 'NOMDULOG');
+    //         Outils::addLog('Mise à jour du produit (before) :' . json_encode($shopify_product));
     //         $id = Outils::getCrossId(obj: $pimcore_product, source: $this->diffusion);
     //         if ($id !== 0) {
     //             $result = $this->client->put(
@@ -612,25 +612,31 @@ class ShopifyApiClient extends ecShopifyBundle
     {
         $diffusionActive = $pimcore_product->getDiffusions_active();
         $tabIdDiffAct = [];
+
+        if(!in_array($tabIdDiffAct)){
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas a diffusé car pas de diffusion'); 
+            return true;
+        }
+
         foreach($diffusionActive as $diff){
             $tabIdDiffAct[] = $diff;
            
         }
         if(!in_array($this->diffusion->getId(), $tabIdDiffAct)){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas a diffusé' . $diff, 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas a diffusé' . $this->diffusion->getId()); 
             return true;
         }
 
         $halfCrossID = Outils::getCrossId($pimcore_product, $this->diffusion);
         $active = $pimcore_product->getPublished();
         if(!$active && !$halfCrossID){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit désactivé' . $diff, 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit désactivé' . $this->diffusion->getId()); 
             return true;
         }
 
         $time = microtime(true);
         $lang = Tool::getValidLanguages()[0];
-        Outils::addLog('fonction updateProduct ' . $time, 3);
+        Outils::addLog('fonction updateProduct ' . $time);
         // Outils::addLog($pimcore_product->getId(), 1);
         /////////////
         //// Partie Collection
@@ -664,22 +670,22 @@ class ShopifyApiClient extends ecShopifyBundle
             }
         }
         $listIdCateg = [];
-        // Outils::addLog(json_encode($categories), 3);
+        // Outils::addLog(json_encode($categories));
         if(!empty($categories)){
             // $listCateg = $categories[$maxID];
-                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégories ' . json_encode($categories), 3); 
+                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégories ' . json_encode($categories)); 
             foreach($categories as $listCateg){
-                // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'listCateg ' . json_encode($listCateg), 3); 
+                // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'listCateg ' . json_encode($listCateg)); 
                 foreach($listCateg['ids'] as $key => $id){
                     $cat = DataObject::getById($id);
                     $halfCrossIDCateg = Outils::getCrossid($cat, $this->diffusion);
-                    // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'data ' . json_encode(['key' => $key,'id' => $id, 'halfCrossIDCateg' => $halfCrossIDCateg]), 3); 
-                    // Outils::addLog('halfcross', 3);
-                    // Outils::addLog(json_encode($halfCrossID), 3);
-                    // Outils::addLog(json_encode($id), 3);
+                    // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'data ' . json_encode(['key' => $key,'id' => $id, 'halfCrossIDCateg' => $halfCrossIDCateg])); 
+                    // Outils::addLog('halfcross');
+                    // Outils::addLog(json_encode($halfCrossID));
+                    // Outils::addLog(json_encode($id));
                     // Création Collection
                     if(!$halfCrossIDCateg){
-                        // Outils::addLog('CREATION categ', 3);
+                        // Outils::addLog('CREATION categ');
                         $query = 'mutation CollectionCreate($input: CollectionInput!) {
                         collectionCreate(input: $input) {
                                 collection {
@@ -703,19 +709,19 @@ class ShopifyApiClient extends ecShopifyBundle
                         ];
                         try{
                             $response = [];
-                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie variable ' . json_encode($variables), 3); 
+                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie variable ' . json_encode($variables)); 
                             $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie response ' . json_encode($response), 3); 
-                            // Outils::addLog('REPONSE CREATION COLLECTION', 3);
-                            // Outils::addLog(json_encode($response), 3);
+                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie response ' . json_encode($response)); 
+                            // Outils::addLog('REPONSE CREATION COLLECTION');
+                            // Outils::addLog(json_encode($response));
                         } catch
                         (ClientExceptionInterface $e) {
                             return $e->getMessage();
                         } catch (UninitializedContextException $e) {
                             return $e->getMessage();
                         }
-                        // Outils::addLog('REPONSE CREATION COLLECTION', 3);
-                        // Outils::addLog(json_encode($response), 3);
+                        // Outils::addLog('REPONSE CREATION COLLECTION');
+                        // Outils::addLog(json_encode($response));
                         
                         if(is_array($response) && isset($response['data']['collectionCreate']['collection']['id'])){
                             $responseId = $response['data']['collectionCreate']['collection']['id'];
@@ -733,8 +739,8 @@ class ShopifyApiClient extends ecShopifyBundle
                 }
             }
         }
-        // Outils::addLog('Liste collection', 3);
-        // Outils::addLog(json_encode($listIdCateg), 3);
+        // Outils::addLog('Liste collection');
+        // Outils::addLog(json_encode($listIdCateg));
         
         /////////////
         //// Partie product
@@ -824,7 +830,7 @@ class ShopifyApiClient extends ecShopifyBundle
         
         // Pas de crossId donc création sur Shopify
         if(!$halfCrossID){
-            // Outils::addLog('cas creation', 3);
+            // Outils::addLog('cas creation');
             try {
                 $variables = [
                     "input" => [
@@ -839,7 +845,7 @@ class ShopifyApiClient extends ecShopifyBundle
                         "vendor" => $shopify_product['product']['vendor'],
                     ],
                 ];
-                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'variables creation produit ' . json_encode($variables) , 3); 
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'variables creation produit ' . json_encode($variables) ); 
                 $query = 'mutation ProductCreate($input: ProductInput!) {
                     productCreate(input: $input) {
                         product {
@@ -867,14 +873,14 @@ class ShopifyApiClient extends ecShopifyBundle
                     }
                 }';
                 $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-                // Outils::addLog(json_encode($result) . $time, 3); 
+                // Outils::addLog(json_encode($result) . $time); 
 
-                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'add crossid ' . $time, 3);         
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'add crossid ' . $time);         
                 if(is_array($result) && isset($result['data']['productCreate']['product']['id'])){
                     $completeId = $result['data']['productCreate']['product']['id'];
                     $slashedId = explode('/',$completeId);
                     $idProd = end($slashedId);
-                    //Outils::addLog(json_encode($idProd) . '  ' . $time, 3); 
+                    //Outils::addLog(json_encode($idProd) . '  ' . $time); 
                     $pimcore_product = DataObject::getById($pimcore_product->getId());
                     
                     // double appel parce que c'est magique, si 1 ça marche PAS
@@ -891,15 +897,15 @@ class ShopifyApiClient extends ecShopifyBundle
                 // return json_encode($result);
             } catch
             (ClientExceptionInterface $e) {
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
                 return true;
             } catch (UninitializedContextException $e) {
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
                 return true;
             }
         } 
         else { // crossId, donc on connait le produit shopify => updates
-            // Outils::addLog('cas update', 3);
+            // Outils::addLog('cas update');
             $crossID = 'gid://shopify/Product/' . $halfCrossID;
             try {
 
@@ -919,7 +925,7 @@ class ShopifyApiClient extends ecShopifyBundle
                 ];
 
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-                // Outils::addLog(json_encode($response), 3);
+                // Outils::addLog(json_encode($response));
 
                 // on determine les collections sur le produit shopify
                 $listCollectionToRemove = [];
@@ -963,8 +969,8 @@ class ShopifyApiClient extends ecShopifyBundle
                     }
                   }';
                 $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') variables ' .json_encode($variables), 3);                
-                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result), 3);                
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') variables ' .json_encode($variables));                
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result));                
             } catch
             (ClientExceptionInterface $e) {
                 Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
@@ -975,7 +981,7 @@ class ShopifyApiClient extends ecShopifyBundle
             }
         } 
         
-        Outils::addLog('fin fonction updateProduct ', 3);
+        Outils::addLog('fin fonction updateProduct ');
         return true; 
     }
     // public function updateProduct_old(Product $pimcore_product): string
@@ -1015,7 +1021,7 @@ class ShopifyApiClient extends ecShopifyBundle
     //         }
     //     }
     //     $listIdCateg = [];
-    //     // Outils::addLog(json_encode($categories), 3);
+    //     // Outils::addLog(json_encode($categories));
     //     if(!empty($categories)){
     //         $listCateg = $categories[$maxID];
     //         foreach($listCateg['ids'] as $key => $id){
@@ -1045,8 +1051,8 @@ class ShopifyApiClient extends ecShopifyBundle
     //                     ],
     //                 ];
     //                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //                 // Outils::addLog('REPONSE CREATION COLLECTION', 3);
-    //                 // Outils::addLog(json_encode($response), 3);
+    //                 // Outils::addLog('REPONSE CREATION COLLECTION');
+    //                 // Outils::addLog(json_encode($response));
     //                 $responseId = $response['data']['collectionCreate']['collection']['id'];
     //                 Outils::addCrossid(object: $cat, source: $this->diffusion, ext_id: $responseId);
     //                 $listCateg[] = $responseId;
@@ -1055,8 +1061,8 @@ class ShopifyApiClient extends ecShopifyBundle
     //             }
     //         }
     //     }
-    //     // Outils::addLog('List collect', 3);
-    //     // Outils::addLog(json_encode($listIdCateg), 3);      
+    //     // Outils::addLog('List collect');
+    //     // Outils::addLog(json_encode($listIdCateg));      
         
     //     /////////////
     //     //// Partie product
@@ -1246,7 +1252,7 @@ class ShopifyApiClient extends ecShopifyBundle
     //     $crossID = Outils::getCrossId($pimcore_product, $this->diffusion);
     //     // Pas de crossId donc création sur Shopify
     //     if(!$crossID){
-    //         // Outils::addLog('cas creation', 3);
+    //         // Outils::addLog('cas creation');
     //         try {
     //             $variables = [
     //                 "input" => [
@@ -1296,8 +1302,8 @@ class ShopifyApiClient extends ecShopifyBundle
     //                 "productId" => $result['data']['productCreate']['product']['id'],
     //                 "variants" => $shopify_product['product']['variants'],
     //             ];
-    //             // Outils::addLog('query create Variante', 3);
-    //             // Outils::addLog(json_encode($variables), 3);
+    //             // Outils::addLog('query create Variante');
+    //             // Outils::addLog(json_encode($variables));
     //             $query = 'mutation ProductVariantsCreate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
     //                 productVariantsBulkCreate(productId: $productId, variants: $variants) {
     //                     productVariants {
@@ -1328,9 +1334,9 @@ class ShopifyApiClient extends ecShopifyBundle
     //             }';
                
     //             $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //             // Outils::addLog('resultat creation variante', 3);
-    //             // Outils::addLog(json_encode($response), 3);
-    //             // Outils::addLog('fin creation variante', 3);
+    //             // Outils::addLog('resultat creation variante');
+    //             // Outils::addLog(json_encode($response));
+    //             // Outils::addLog('fin creation variante');
     //             $pimDecl = $pimcore_product->getDecli();
     //             foreach($response['data']['productVariantsBulkCreate']['productVariants'] as $var){
     //                 foreach($pimDecl as $pDecl){
@@ -1349,7 +1355,7 @@ class ShopifyApiClient extends ecShopifyBundle
     //         }
     //     } 
     //     else { // crossId, donc on connait le produit shopify => updates
-    //         // Outils::addLog('cas update', 3);
+    //         // Outils::addLog('cas update');
     //         try {
 
     //             $query = 'query CollectionsForProduct($productId: ID!) {
@@ -1368,7 +1374,7 @@ class ShopifyApiClient extends ecShopifyBundle
     //             ];
 
     //             $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //             // Outils::addLog(json_encode($response), 3);
+    //             // Outils::addLog(json_encode($response));
 
     //             // on determine les collections sur le produit shopify
     //             $listCollectionToRemove = [];
@@ -1395,8 +1401,8 @@ class ShopifyApiClient extends ecShopifyBundle
     //                     // "collectionsToLeave" => $temp,
     //                 ],
     //             ];
-    //             // Outils::addLog('variables update product', 3);
-    //             // Outils::addLog(json_encode($variables), 3);
+    //             // Outils::addLog('variables update product');
+    //             // Outils::addLog(json_encode($variables));
     //             $query = 'mutation ProductUpdate($input: ProductInput!) {
     //                 productUpdate(input: $input) {
     //                   product {
@@ -1413,10 +1419,10 @@ class ShopifyApiClient extends ecShopifyBundle
     //                 }
     //               }';
     //             $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-    //             // Outils::addLog('resultat update product', 3);
-    //             // Outils::addLog(json_encode($result), 3);
+    //             // Outils::addLog('resultat update product');
+    //             // Outils::addLog(json_encode($result));
 
-    //             // Outils::addLog('update variante', 3);
+    //             // Outils::addLog('update variante');
     //             $query = 'mutation UpdateProductVariantsOptionValuesInBulk($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
     //             productVariantsBulkUpdate(productId: $productId, variants: $variants) {
     //                 product {
@@ -1553,11 +1559,11 @@ class ShopifyApiClient extends ecShopifyBundle
     //                 'variants' => $variantShopify,
     //             ];
                 
-    //             // Outils::addLog(json_encode($variables), 3);
+    //             // Outils::addLog(json_encode($variables));
     //             if(!empty($variantShopify)){
     //                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //                 // Outils::addLog('resultat update variantes', 3);
-    //                 // Outils::addLog(json_encode($response), 3);
+    //                 // Outils::addLog('resultat update variantes');
+    //                 // Outils::addLog(json_encode($response));
     //             }
                 
     //             // $result = $this->client->post(
@@ -1571,7 +1577,7 @@ class ShopifyApiClient extends ecShopifyBundle
                 
     //             // Outils::addCrossid(object: $pimcore_product, source: $this->diffusion, ext_id: $result['data']['productCreate']['product']['id']);
                 
-    //             // Outils::addLog('fin', 3);
+    //             // Outils::addLog('fin');
     //             return json_encode($result);
     //         } catch
     //         (ClientExceptionInterface $e) {
@@ -1589,20 +1595,20 @@ class ShopifyApiClient extends ecShopifyBundle
     // public function deleteProduct_old(Product $pimcore_product): array|string|null
     // {
     //     Outils::addLog('fonction deleteProduct ', 1);
-    //     // Outils::addLog(json_encode($pimcore_product->getId()), 3);
+    //     // Outils::addLog(json_encode($pimcore_product->getId()));
 
     //     try {
 
     //         // suppression variante
     //         $idProductShopify = Outils::getCrossId($pimcore_product, source: $this->diffusion);
-    //         // Outils::addLog($idProductShopify, 3);
+    //         // Outils::addLog($idProductShopify);
     //         $tabIdVariantShopify = [];
     //         foreach ($pimcore_product->getDecli() as $variant){
     //             $tabIdVariantShopify[] = Outils::getCrossId($variant, $this->diffusion);
     //             // Outils::removeCrossid(object: $variant, source: $this->diffusion);
     //             unset($variant);
     //         }
-    //         // Outils::addLog(json_encode($tabIdVariantShopify), 3);
+    //         // Outils::addLog(json_encode($tabIdVariantShopify));
     //         $query = 'mutation bulkDeleteProductVariants($productId: ID!, $variantsIds: [ID!]!) {
     //             productVariantsBulkDelete(productId: $productId, variantsIds: $variantsIds) {
     //                 product {
@@ -1622,8 +1628,8 @@ class ShopifyApiClient extends ecShopifyBundle
     //         ];
             
     //         $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //         // Outils::addLog('resultat suppression variants', 3);
-    //         // Outils::addLog(json_encode($response), 3);
+    //         // Outils::addLog('resultat suppression variants');
+    //         // Outils::addLog(json_encode($response));
     //         // suppression product
     //         $query = 'mutation {
     //             productDelete(input: {id: "'. $idProductShopify .'"}) {
@@ -1641,8 +1647,8 @@ class ShopifyApiClient extends ecShopifyBundle
     //         // );
     //         $data = $this->client->query(['query' => $query])->getDecodedBody();
     //         // Outils::addLog('Suppression du produit :' . json_encode($data), 1, [], 'NOMDULOG');
-    //         // Outils::addLog('resultat suppression product', 3);
-    //         // Outils::addLog(json_encode($data), 3);
+    //         // Outils::addLog('resultat suppression product');
+    //         // Outils::addLog(json_encode($data));
           
     //         // Outils::removeCrossid(object: $pimcore_product, source: $this->diffusion);
     //         unset($product);
@@ -1663,13 +1669,13 @@ class ShopifyApiClient extends ecShopifyBundle
            
         }
         if(!in_array($this->diffusion->getId(), $tabIdDiffAct)){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé' . $diff, 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé' . $diff); 
             return true;
         }
 
         $halfCrossID = Outils::getCrossId($pimcore_product, $this->diffusion);
         if(!$halfCrossID){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit jamais diffusé' . $diff, 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit jamais diffusé' . $diff); 
             return true;
         }
 
@@ -1701,8 +1707,8 @@ class ShopifyApiClient extends ecShopifyBundle
                 }
                 }';
             $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') variables ' .json_encode($variables), 3);                
-            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result), 3);                
+            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') variables ' .json_encode($variables));                
+            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result));                
         } catch
         (ClientExceptionInterface $e) {
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
@@ -1720,7 +1726,7 @@ class ShopifyApiClient extends ecShopifyBundle
         /////////////////////////
         /////////////////////////
         
-        // Outils::addLog(json_encode($pimcore_product->getId()), 3);
+        // Outils::addLog(json_encode($pimcore_product->getId()));
 
         try { 
             // suppression variante
@@ -1775,14 +1781,14 @@ class ShopifyApiClient extends ecShopifyBundle
         }';
         try{
             $response = $this->client->query(['query' => $query])->getDecodedBody();
-            Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+            Outils::addLog(json_encode($response));
         } catch
         (ClientExceptionInterface $e) {
             return $e->getMessage();
         } catch (UninitializedContextException $e) {
             return $e->getMessage();
         }
-        // Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+        // Outils::addLog(json_encode($response));
         if(is_null($response['data']['inventoryItems']['edges'])){
             return true;
         }
@@ -1825,14 +1831,14 @@ class ShopifyApiClient extends ecShopifyBundle
         ];
         try{
             $response = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-            // Outils::addLog(json_encode($response), 3, [], 'NOMDULOG');
+            // Outils::addLog(json_encode($response));
         } catch
         (ClientExceptionInterface $e) {
             return $e->getMessage();
         } catch (UninitializedContextException $e) {
             return $e->getMessage();
         }
-        // Outils::addLog('retour updateStock', 3, [], 'NOMDULOG');
+        // Outils::addLog('retour updateStock');
 
 
         //////////////
@@ -1871,10 +1877,10 @@ class ShopifyApiClient extends ecShopifyBundle
         //     $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
         // } catch
         // (ClientExceptionInterface $e) {
-        //     Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+        //     Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
         //     return true;
         // } catch (UninitializedContextException $e) {
-        //     Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+        //     Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
         //     return true;
         // }
         // unset($decl);
@@ -1968,7 +1974,7 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     public function updateDecli(Declinaison $decli)
     {
-        Outils::addLog('debut fonction updateDecli ', 3);
+        Outils::addLog('debut fonction updateDecli ');
         
         $lang = Tool::getValidLanguages()[0];
         $pimcore_product = DataObject::getById($decli->getParentId());
@@ -1981,7 +1987,7 @@ class ShopifyApiClient extends ecShopifyBundle
            
         }
         if(!in_array($this->diffusion->getId(), $tabIdDiffAct)){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit parent pas diffusé', 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit parent pas diffusé'); 
             return true;
         }   
         
@@ -1994,7 +2000,7 @@ class ShopifyApiClient extends ecShopifyBundle
             if($halfCrossID){
                 $this->deleteDecli($decli);
             }            
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'declinaison inactive', 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'declinaison inactive'); 
             return true;
         }
         
@@ -2160,7 +2166,7 @@ class ShopifyApiClient extends ecShopifyBundle
             
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-                // Outils::addLog(json_encode($response), 3);
+                // Outils::addLog(json_encode($response));
             } catch
             (ClientExceptionInterface $e) {
                 Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
@@ -2174,8 +2180,8 @@ class ShopifyApiClient extends ecShopifyBundle
                 "productId" => $productCrossID,
                 "variants" => $variants,
             ];
-            // Outils::addLog('query create Variante', 3);
-            // Outils::addLog(json_encode($variables), 3);
+            // Outils::addLog('query create Variante');
+            // Outils::addLog(json_encode($variables));
             $query = 'mutation ProductVariantsCreate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
                 productVariantsBulkCreate(productId: $productId, variants: $variants) {
                     productVariants {
@@ -2208,7 +2214,7 @@ class ShopifyApiClient extends ecShopifyBundle
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
                 $prodVar = $response['data']['productVariantsBulkCreate']['productVariants'];
-                // Outils::addLog(json_encode($response), 3); 
+                // Outils::addLog(json_encode($response)); 
             } catch
             (ClientExceptionInterface $e) {
                 Outils::addLog('ShopifyAPiClient ' . __LINE__ . $e->getMessage(), 3);
@@ -2218,29 +2224,29 @@ class ShopifyApiClient extends ecShopifyBundle
                 return true;
             }
             $prodVar = reset($prodVar);
-            // Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($prodVar), 3);
+            // Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($prodVar));
             if(is_array($prodVar) && isset($prodVar['id'])){
                 $completeId = $prodVar['id'];
                 $slashedId = explode('/', $completeId);
                 $id = end($slashedId);
-                // Outils::addLog('addCrossid ' . __LINE__ , 3);
+                // Outils::addLog('addCrossid ' . __LINE__ );
                 $temp = [];
                 $crossIDs = $decli->getCrossid(); 
                 foreach($crossIDs as $cross){
                     $temp[] = $cross->getData();
                 }
-                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($temp), 3);
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($temp));
                 Outils::addCrossid(object: $decli, source: $this->diffusion, ext_id: $id);
                 $temp = [];
                 $crossIDs = $decli->getCrossid(); 
                 foreach($crossIDs as $cross){
                     $temp[] = $cross->getData();
                 }
-                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($temp), 3);
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($temp));
             }
      
         }
-        Outils::addLog('fin fonction updateDecli', 3);
+        Outils::addLog('fin fonction updateDecli');
     }
     /**
      * @throws ClientExceptionInterface
@@ -2249,7 +2255,7 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     public function updateDecliPrix(Declinaison $decli)
     {
-        Outils::addLog('debut fonction updateDecliPrix ', 3);
+        Outils::addLog('debut fonction updateDecliPrix ');
         
         $lang = Tool::getValidLanguages()[0];
         $pimcore_product = DataObject::getById($decli->getParentId());
@@ -2261,7 +2267,7 @@ class ShopifyApiClient extends ecShopifyBundle
             $tabIdDiffAct[] = $diff;
         }
         if(!in_array($this->diffusion->getId(), $tabIdDiffAct)){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit parent pas diffusé', 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit parent pas diffusé'); 
             return true;
         }   
         
@@ -2269,7 +2275,7 @@ class ShopifyApiClient extends ecShopifyBundle
         $isActive = $decli->getPublished();
         $halfCrossID = Outils::getCrossId($decli, $this->diffusion);
         if(!$isActive){        
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'declinaison inactive', 3); 
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'declinaison inactive'); 
             return true;
         }
         
@@ -2316,8 +2322,8 @@ class ShopifyApiClient extends ecShopifyBundle
             
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-                // Outils::addLog(json_encode($response), 3);
-                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response), 3); 
+                // Outils::addLog(json_encode($response));
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response)); 
             } catch
             (ClientExceptionInterface $e) {
                 Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
