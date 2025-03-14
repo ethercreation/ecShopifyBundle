@@ -311,7 +311,7 @@ class ImportController extends FrontendController
                 } elseif (is_array($metafield) && array_key_exists('node', $metafield)
                     && is_array($metafield['node'])) {
                     $name = $metafield['node']['key'];
-                    $values = json_decode($metafield['node']['value'], true);
+                    $values = $metafield['node']['value'];
                     $idF = $this->nettoyeId($metafield['node']['id']);
                     $feature[] = ['name' => [1 => $name], 'id' => $idF];
                     $value[] = ['custom' => 0, 'value' => [1 => $values], 'id_feature' => $idF, 'id' => $idF];
