@@ -310,6 +310,26 @@ class ImportController extends FrontendController
                     }
                 }
             }
+        } elseif (array_key_exists('edges', json_decode($datas, true))) {
+            foreach (json_decode($datas, true)['edges'] as $metafield) {
+                if (is_array($metafield) && array_key_exists('node', $metafield) 
+                    && is_array($metafield['node']) && array_key_exists('definition', $metafield['node']) 
+                    && is_array($metafield['node']['definition']) && array_key_exists('name', $metafield['node']['definition'])) {
+                    $name = $metafield['node']['definition']['name'];
+                    $values = json_decode($metafield['node']['value'], true);
+                    $idF = $this->nettoyeId($metafield['node']['id']);
+                    $feature[] = ['name' => [1 => $name], 'id' => $idF];
+                    if (is_array($values)) {
+                        foreach ($values as $gid) {
+                            $metaobjects = json_decode($datas['metaObject'], true);
+                            if (isset($metaobjects[$gid])) {
+                                $displayName = $metaobjects[$gid]['displayName'];
+                                $value[] = ['custom' => 0, 'value' => [1 => $displayName], 'id_feature' => $idF, 'id' => $this->nettoyeId($metaobjects[$gid]['id'])];
+                            }
+                        }
+                    }
+                }
+            }            
         }
 
         $langPS = ['fr' => 1];
