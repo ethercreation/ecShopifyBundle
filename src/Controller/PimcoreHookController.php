@@ -64,18 +64,18 @@ class PimcoreHookController extends DefaultController
      * Actions à effectuer lors de la création d'un produit dans pimcore
      * @throws \Exception
      */
-    #[Route('/create-product', name: 'create_product')]
-    public function hookCreateProduct($params): Response
-    {
-        Outils::addLog('Création d\'un produit', 1, [], 'NOMDULOG');
-        /**
-         * @var Product $product
-         */
-        $product = $params['product'];
-        $shopify = new ShopifyApiClient();
-        $result = $shopify->createProduct($product);
-        return new Response('<pre>' . json_encode([$result]) . '</pre>');
-    }
+    // #[Route('/create-product', name: 'create_product')]
+    // public function hookCreateProduct($params): Response
+    // {
+    //     Outils::addLog('Création d\'un produit', 1, [], 'NOMDULOG');
+    //     /**
+    //      * @var Product $product
+    //      */
+    //     $product = $params['product'];
+    //     $shopify = new ShopifyApiClient();
+    //     $result = $shopify->createProduct($product);
+    //     return new Response('<pre>' . json_encode([$result]) . '</pre>');
+    // }
 
     public function hookUpdateStockShopify($params): Response
     {
@@ -86,6 +86,9 @@ class PimcoreHookController extends DefaultController
         // $object['object'] = 'stock';
         $obj->setHideUnpublished(false);
         $produit = $obj->getStock_product()??0;
+        if($obj->getClassName() != 'product'){
+            return new Response('<pre>ok</pre>');
+        }
         Outils::addLog('fonction hookUpdateStockShopify ', 3);
         // $product = $params['product'];
         $shopify = new ShopifyApiClient();
@@ -108,7 +111,9 @@ class PimcoreHookController extends DefaultController
         Outils::addLog('debut fonction hookUpdateProduct', 3, [], 'NOMDULOG');
         
         $product = $params['product'];
-        
+        if($product->getClassName() != 'product'){
+            return new Response('<pre>ok</pre>');
+        }
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateProduct($product);
 
@@ -127,6 +132,9 @@ class PimcoreHookController extends DefaultController
          * @var Product $product
          */
         $product = $params['product'];
+        if($product->getClassName() != 'product'){
+            return new Response('<pre>ok</pre>');
+        }
         Outils::addLog('fonction hookDeleteBeforeProduct ', 3);
         $shopify = new ShopifyApiClient();
         $result = $shopify->deleteProduct($product);
@@ -216,6 +224,9 @@ class PimcoreHookController extends DefaultController
         Outils::addLog('debut fonction hookUpdateDecli', 3, [], 'NOMDULOG');
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
+        if($decli->getClassName() != 'declinaison'){
+            return new Response('<pre>ok</pre>');
+        }
         /** @var Product $product */
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateDecli($decli);
@@ -230,6 +241,9 @@ class PimcoreHookController extends DefaultController
         Outils::addLog('fonction hookDeleteDecli ', 3);
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
+        if($decli->getClassName() != 'declinaison'){
+            return new Response('<pre>ok</pre>');
+        }
         /** @var Product $product */
         $shopify_client = new ShopifyApiClient();
         $result = $shopify_client->deleteDecli($decli);
