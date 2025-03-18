@@ -504,102 +504,6 @@ class ShopifyApiClient extends ecShopifyBundle
         Outils::addLog('fin updateStock');
         return true;
     }
-    // public function updateStock_old(Product $pimcore_product)
-    // {
-    //     Outils::addLog('updateStock');
-
-    //     $variants = [];
-    //     foreach ($pimcore_product->getDecli() as $variant) {
-    //         $sto = 0;
-    //         $stoDepot = Outils::getStockProduct($pimcore_product, $variant, 'dispo', 0, 0, 0 ,1);
-    //         foreach($stoDepot as $depot){
-    //             $sto = $sto + $depot['quantity_physique'];
-    //         }
-    //         $variants[] = [
-    //             // 'id' => Outils::getCrossId(obj: $pimcore_product, source: $this->diffusion),
-    //             // 'product_id' => 1071559574,
-    //             'inventory_policy' => self::INVENTORY_POLICY,
-    //             'fulfillment_service' => self::FULFILLMENT_SERVICE,
-    //             'inventory_management' => self::INVENTORY_MANAGEMENT,               
-    //             // 'inventory_quantity' => $variant->getQuantity(),
-    //             'inventory_quantity' => $sto,
-    //             'sku' => $variant->getReference(),
-    //             'barcode' => $variant->getEan13(),
-    //             'price' => $variant->getPrix_vente() ?? $pimcore_product->getPrice_recommended(),
-    //             'cost' => $variant->getPrix_achat() ?? $pimcore_product->getPrice_buying_default(),
-    //             'weight' => $variant->getWeight(),
-    //             'weight_unit' => Dataobject::getByPath('/Config/unit_weight')->getValeur(),
-                
-    //         ];
-    //     }
-    //     if (count($variants) === 0) {
-    //         $sto = 0;
-    //         $stoDepot = Outils::getStockProduct($pimcore_product, 0, 'dispo', 0, 0, 0 ,1);
-    //         foreach($stoDepot as $depot){
-    //             $sto = $sto + $depot['quantity_physique'];
-    //         }
-    //         $variants[] = [
-    //             'price' => $pimcore_product->getPrice_recommended(),
-    //             'cost' => $pimcore_product->getPrice_buying_default(),
-    //             'inventory_policy' => self::INVENTORY_POLICY,
-    //             // 'compare_at_price' => null,
-    //             'fulfillment_service' => self::FULFILLMENT_SERVICE,
-    //             'inventory_management' => self::INVENTORY_MANAGEMENT,
-    //             // 'inventory_quantity' => $pimcore_product->getQuantity(),
-    //             'inventory_quantity' => $sto,
-    //             'sku' => $pimcore_product->getReference(),
-    //             'barcode' => $pimcore_product->getEan13(),
-    //             'weight' => $pimcore_product->getWeight(),
-    //             'weight_unit' => Dataobject::getByPath('/Config/unit_weight')->getValeur(),
-    //         ];
-    //     }
-    //     $shopify_product = [
-    //         'product' => [
-    //             'title' => $pimcore_product->getName(),
-    //             'status' => $pimcore_product->getPublished() ? 'active' : 'draft',
-    //             'published_scope' => self::PUBLISHED_SCOPE,
-    //             'variants' => $variants,
-    //             // 'sku' => $pimcore_product->getReference(),
-    //             // 'barcode' => $pimcore_product->getEan13(),
-    //             'weight' => $pimcore_product->getWeight(),
-    //             'weight_unit' => Dataobject::getByPath('/Config/unit_weight')->getValeur(),
-    //             ]
-    //     ];
-    //     if ($shopify_product['product']['variants'] === []) {
-    //         unset($shopify_product['product']['variants']);
-    //     }
-
-
-        
-    //     try {
-    //         Outils::addLog('Mise à jour du produit (before) :' . json_encode($shopify_product));
-    //         $id = Outils::getCrossId(obj: $pimcore_product, source: $this->diffusion);
-    //         if ($id !== 0) {
-    //             $result = $this->client->put(
-    //                 path: "products/$id",
-    //                 body: $shopify_product
-    //             )->getDecodedBody();
-    //             $pimcore_product->nohook = true;
-    //         } else {
-    //             $result = $this->client->post(
-    //                 path: 'products',
-    //                 body: $shopify_product
-    //             )->getDecodedBody();
-    //             $pimcore_product->nohook = true;
-    //             if (key_exists('errors', $result)){
-    //                 echo(json_encode($result));
-    //             }
-    //             Outils::addCrossid(object: $pimcore_product, source: $this->diffusion, ext_id: $result['product']['id']);
-    //         }
-
-    //         return json_encode($result);
-    //     } catch
-    //     (ClientExceptionInterface $e) {
-    //         return $e->getMessage();
-    //     } catch (UninitializedContextException $e) {
-    //         return $e->getMessage();
-    //     }
-    // }
 
     /**
      * # Mise à jour d'un produit
@@ -613,14 +517,13 @@ class ShopifyApiClient extends ecShopifyBundle
         $diffusionActive = $pimcore_product->getDiffusions_active();
         $tabIdDiffAct = [];
 
-        if(!is_array($tabIdDiffAct)){
+        if(!is_array($diffusionActive)){
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas a diffusé car pas de diffusion'); 
             return true;
         }
 
         foreach($diffusionActive as $diff){
             $tabIdDiffAct[] = $diff;
-           
         }
         if(!in_array($this->diffusion->getId(), $tabIdDiffAct)){
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas a diffusé' . $this->diffusion->getId()); 
@@ -973,10 +876,10 @@ class ShopifyApiClient extends ecShopifyBundle
                 // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result));                
             } catch
             (ClientExceptionInterface $e) {
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
                 return true;
             } catch (UninitializedContextException $e) {
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
                 return true;
             }
         } 
@@ -984,610 +887,6 @@ class ShopifyApiClient extends ecShopifyBundle
         Outils::addLog('fin fonction updateProduct ');
         return true; 
     }
-    // public function updateProduct_old(Product $pimcore_product): string
-    // {
-    //     $lang = Tool::getValidLanguages()[0];
-    //     Outils::addLog('fonction updateProduct ', 1);
-        
-    //     /////////////
-    //     //// Partie Collection
-    //     /////////////
-        
-    //     $lstObjCateg = $pimcore_product->getDiffusion();
-    //     $categories = []; // liste de toutes les catégories de toutes les diffusions
-    //     $plus_long_chemin = $maxID = 0;
-    //     if (!empty($lstObjCateg)) {
-    //         foreach ($lstObjCateg as $i => $objCateg) {
-    //             if ($this->diffusion->getId() != ($objCateg->getData()['id_diffusion'] ?? '')) {
-    //                 continue;
-    //             }
-    //             $objCateg = $objCateg->getElement();
-    //             $depth = 0;
-    //             while (true) {
-    //                 if ('folder' == $objCateg->getType()) {
-    //                     break;
-    //                 }
-    //                 $depth++;
-    //                 $categories[$i]['ids'][] = $objCateg->getId();
-    //                 $categories[$i]['names'][] = $objCateg->getName('fr');
-    //                 $categories[$i]['paths'][] = $objCateg->getPath();
-    //                 $objCateg = DataObject::getById($objCateg->getParentId());
-    //             }
-    //             $categories[$i]['depth'] = $depth;
-    //             $plus_long_chemin = max($plus_long_chemin, $depth);
-    //             if($plus_long_chemin == $depth){
-    //                 $maxID = $i;
-    //             }
-    //         }
-    //     }
-    //     $listIdCateg = [];
-    //     // Outils::addLog(json_encode($categories));
-    //     if(!empty($categories)){
-    //         $listCateg = $categories[$maxID];
-    //         foreach($listCateg['ids'] as $key => $id){
-    //             $cat = DataObject::getById($id);
-    //             $crossID = Outils::getCrossid($cat, $this->diffusion);
-    //             // Création Collection
-    //             if(!$crossID){
-    //                 $query = 'mutation CollectionCreate($input: CollectionInput!) {
-    //                 collectionCreate(input: $input) {
-    //                         collection {
-    //                             id
-    //                             title
-    //                             descriptionHtml
-    //                             updatedAt
-    //                             handle                           
-    //                         }
-    //                         userErrors {
-    //                             field
-    //                             message
-    //                         }
-    //                     }
-    //                 }';
-    //                 $variables = [
-    //                     "input" => [
-    //                       "title" => $listCateg['names'][$key],
-    //                       "descriptionHtml" => "This is a custom collection.",
-    //                     ],
-    //                 ];
-    //                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //                 // Outils::addLog('REPONSE CREATION COLLECTION');
-    //                 // Outils::addLog(json_encode($response));
-    //                 $responseId = $response['data']['collectionCreate']['collection']['id'];
-    //                 Outils::addCrossid(object: $cat, source: $this->diffusion, ext_id: $responseId);
-    //                 $listCateg[] = $responseId;
-    //             } else { // Collection déjà crée, on recup l'id collection Shopify
-    //                 $listIdCateg[] = $crossID;
-    //             }
-    //         }
-    //     }
-    //     // Outils::addLog('List collect');
-    //     // Outils::addLog(json_encode($listIdCateg));      
-        
-    //     /////////////
-    //     //// Partie product
-    //     /////////////
-    //     $options = [
-    //         'option1' => ['name' => null, 'value' => null, 'all_values' => []],
-    //         'option2' => ['name' => null, 'value' => null, 'all_values' => []],
-    //         'option3' => ['name' => null, 'value' => null, 'all_values' => []]
-    //     ];
-    //     $variants = [];
-    //     foreach ($pimcore_product->getDecli() as $variant) {
-    //         $sto = 0;
-    //         $stoDepot = Outils::getStockProduct($pimcore_product, $variant, 'dispo', 0, 0, 0 ,1);
-    //         foreach($stoDepot as $depot){
-    //             $sto = $sto + $depot['quantity_physique'];
-    //         }
-    //         $attributes = $variant->getAttribut();
-    //         $options['option1']['value'] = null;
-    //         $options['option2']['value'] = null;
-    //         $options['option3']['value'] = null;
-    //         foreach ($attributes as $attribute_value) {
-    //             /* @var $attribute_value Attribut */
-    //             $attribute = $attribute_value->getParent();
-    //             $name = $attribute->getName($lang);
-    //             $value = $attribute_value->getName($lang);
-
-    //             foreach ($options as $key => &$option) {
-    //                 if ($name === $option['name'] || $option['name'] === null) {
-    //                     $option['name'] = $name;
-    //                     $option['value'] = $value;
-    //                     $option['all_values'][] = $value;
-    //                     break;
-    //                 }
-    //             }
-    //             unset($option); // Important: annule la référence pour éviter les problèmes ultérieurs
-    //         }
-    //         // Outils::addLog('Mise à jour du produit (options) :' . json_encode($options), 1, [], 'NOMDULOG');
-    //         $option1 = $options['option1'];
-    //         $option2 = $options['option2'];
-    //         $option3 = $options['option3'];
-
-    //         $optionTab = [];
-    //         foreach($options as $option){
-    //             if($option['value'] != null || $option['value'] != ''){
-    //                 $optionTab[] = $option['value'];
-    //             }
-    //         }
-    //         $price = Outils::getBestPriceVente(product: $pimcore_product,tax: true, id_diffusion: $this->diffusion->getId(), id_declinaison: $variant->getId());
-    //         $variants[] = [
-    //             // 'title' => 'par defaut',
-    //             'price' => $price ?? $pimcore_product->getPrice_recommended(),
-    //             'inventoryItem' => [
-    //                 'sku' => $variant->getReference_declinaison(),
-    //                 // 'cost' => $pimcore_product->getPrice_buying_default(),
-    //                 'measurement' => [
-    //                     'weight' => [
-    //                         'value' => $variant->getWeight(),
-    //                         // 'unit' => Dataobject::getByPath('/Config/unit_weight')->getValeur(),
-    //                         'unit' => 'GRAMS',
-    //                     ],
-    //                 ],
-    //             ],
-    //             'inventoryPolicy' => self::INVENTORY_POLICY,
-
-    //             'barcode' => $variant->getEan13(),
-    //             'inventoryQuantities' => [
-    //                 'availableQuantity' => $sto,
-    //                 // 'locationId' => 'gid://shopify/Location/102113280322',
-    //                 'locationId' => 'gid://shopify/Location/'.outils::getConfigByName($this->diffusion,'shopify_location_id'),
-    //             ],
-    //             'optionValues' => [ // Options for the variant (e.g., Size, Color)
-    //                 [ 
-    //                     'name' => join(' / ', $optionTab),
-    //                     'optionName' => 'Title' 
-    //                 ],
-    //             ],
-    //         ];
-    //     }
-    //     if (count($variants) === 0) {
-    //         $sto = 0;
-    //         $stoDepot = Outils::getStockProduct($pimcore_product, 0, 'dispo', 0, 0, 0 ,1);
-    //         foreach($stoDepot as $depot){
-    //             $sto = $sto + $depot['quantity_physique'];
-    //         }
-    //         $variants[] = [
-    //             // 'title' => 'par defaut',
-    //             'price' => $pimcore_product->getPrice_recommended(),
-    //             'inventoryItem' => [
-    //                 'sku' => $pimcore_product->getReference(),
-    //                 // 'cost' => $pimcore_product->getPrice_buying_default(),
-    //                 'measurement' => [
-    //                     'weight' => [
-    //                         'value' => $pimcore_product->getWeight(),
-    //                         // 'unit' => Dataobject::getByPath('/Config/unit_weight')->getValeur(),
-    //                         'unit' => 'GRAMS',
-    //                     ],
-    //                 ],
-    //             ],
-    //             'inventoryPolicy' => self::INVENTORY_POLICY,
-
-    //             'barcode' => $pimcore_product->getEan13(),   
-    //             'inventoryQuantities' => [
-    //                 'availableQuantity' => $sto,
-    //                 // 'locationId' => 'gid://shopify/Location/102113280322',
-    //                 'locationId' => 'gid://shopify/Location/'.outils::getConfigByName($this->diffusion,'shopify_location_id'),
-    //             ],
-    //             'optionValues' => [ // Options for the variant (e.g., Size, Color)
-    //                 [ 
-    //                     'name' => 'Par defaut',
-    //                     'optionName' => 'Title' 
-    //                 ],
-    //             ],
-                       
-    //             // 'inventory_quantity' => $sto,
-    //         ];
-    //     }
-    //     // $lang = Tool::getDefaultLanguage();
-    //     // Outils::addLog('Mise à jour du produit :' . json_encode($pimcore_product->getPrice_recommended()), 1, [], 'NOMDULOG');
-    //     $shopify_product = [
-    //         'product' => [
-    //             // 'id' => 687468438,
-    //             'title' => $pimcore_product->getName(),
-    //             'body_html' => $pimcore_product->getDescription($lang),
-    //             // 'vendor' => $pimcore_product->getManufacturer(),
-    //             'product_type' => 'Default',
-    //             // 'product_type' => $pimcore_product->getCategory_default(),
-    //             'price' => $pimcore_product->getPrice_recommended(),
-    //             'cost' => $pimcore_product->getPrice_buying_default(),
-    //             'sku' => $pimcore_product->getReference(),
-    //             'barcode' => $pimcore_product->getEan13(),
-    //             'collectionsToJoin' => $listIdCateg,
-    //             'weight' => $pimcore_product->getWeight(),
-    //             'weight_unit' => Dataobject::getByPath('/Config/unit_weight')->getValeur(),
-    //             // 'inventory_quantity' => $pimcore_product->getQuantity(),
-    //             'inventory_policy' => self::INVENTORY_POLICY,
-    //             // 'compare_at_price' => null,
-    //             'fulfillment_service' => self::FULFILLMENT_SERVICE,
-    //             'inventory_management' => self::INVENTORY_MANAGEMENT,
-    //             // 'created_at' => $pimcore_product->getCreationDate(),
-    //             // 'handle' => 'burton-custom-freestyle-151',
-    //             // 'updated_at' => '2023-06-14T14:23:53-04:00',
-    //             // 'published_at' => null,
-    //             // 'template_suffix' => null,
-    //             'status' => $pimcore_product->getPublished() ? 'ACTIVE' : 'DRAFT',
-    //             'published_scope' => self::PUBLISHED_SCOPE,
-    //             // 'tags' => ,
-    //             // 'admin_graphql_api_id' => 'gid://shopify/Product/1071559574',
-    //             'variants' => $variants,
-    //             "options" => [],
-    //             'images' => [],
-    //             'image' => null
-    //             ]
-    //     ];
-
-    //     if (isset($option1['name']))
-    //         $shopify_product['product']['options'][] = [
-    //             "name" => $option1['name'],
-    //             "position" => 1,
-    //             // "values" => $option1['all_values']
-    //         ];
-    //     if (isset($option2['name']))
-    //         $shopify_product['product']['options'][] = [
-    //             "name" => $option2['name'],
-    //             "position" => 2,
-    //             // "values" => ['Bleu', 'Rouge']
-    //             // "values" => $option2['all_values']
-    //         ];
-    //     if (isset($option3['name']))
-    //         $shopify_product['product']['options'][] = [
-    //             "name" => $option3['name'],
-    //             "position" => 3,
-    //             // "values" => $option3['all_values']
-    //         ];
-    //     // if ($shopify_product['product']['options'] === []) {
-    //     //     unset($shopify_product['product']['options']);
-    //     // }
-    //     if ($shopify_product['product']['variants'] === []) {
-    //         unset($shopify_product['product']['variants']);
-    //     }
-
-    //     $shopify_product['product']['images'] = array_map(function ($item) {
-    //         return [
-    //             'src' => \Pimcore\Tool::getHostUrl() . $item->getImage()->getFullpath(),
-    //         ];
-    //     }, $pimcore_product->getGalery()->getItems());
-
-    //     $crossID = Outils::getCrossId($pimcore_product, $this->diffusion);
-    //     // Pas de crossId donc création sur Shopify
-    //     if(!$crossID){
-    //         // Outils::addLog('cas creation');
-    //         try {
-    //             $variables = [
-    //                 "input" => [
-    //                     "title" => $shopify_product['product']['title'],
-    //                     // "productOptions" => $shopify_product['product']['options'],
-    //                     // "productOptions" => [['name' => 'Default', 'values' => [['name' => 'Default']]]],
-    //                     "descriptionHtml" => $shopify_product['product']['body_html'],
-    //                     // "variants" => $shopify_product['product']['variants'],
-    //                     // "category" => $shopify_product['product']['product_type'],
-    //                     "productType" => $shopify_product['product']['product_type'],
-    //                     "status" => $shopify_product['product']['status'],
-    //                     "collectionsToJoin" => $shopify_product['product']['collectionsToJoin'],
-    //                 ],
-    //             ];
-    //             $query = 'mutation ProductCreate($input: ProductInput!) {
-    //                 productCreate(input: $input) {
-    //                     product {
-    //                     id
-    //                     title
-    //                     descriptionHtml
-    //                     productType
-    //                     status
-    //                     options {
-    //                         id
-    //                         name
-    //                         position
-    //                         optionValues {
-    //                         id
-    //                         name
-    //                         hasVariants
-    //                         }
-    //                     }
-    //                     }
-    //                     userErrors {
-    //                     field
-    //                     message
-    //                     }
-    //                 }
-    //             }';
-    //             $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-                               
-    //             Outils::addCrossid(object: $pimcore_product, source: $this->diffusion, ext_id: $result['data']['productCreate']['product']['id']);
-
-                    
-    //             // ADD Variant
-    //             $variables = [
-    //                 "productId" => $result['data']['productCreate']['product']['id'],
-    //                 "variants" => $shopify_product['product']['variants'],
-    //             ];
-    //             // Outils::addLog('query create Variante');
-    //             // Outils::addLog(json_encode($variables));
-    //             $query = 'mutation ProductVariantsCreate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-    //                 productVariantsBulkCreate(productId: $productId, variants: $variants) {
-    //                     productVariants {
-    //                         id
-    //                         title
-    //                         selectedOptions {
-    //                             name
-    //                             value
-    //                         }
-    //                         barcode
-    //                         price
-    //                         inventoryPolicy                            
-    //                         inventoryItem {
-    //                             sku
-    //                             measurement {
-    //                                 weight {
-    //                                     unit
-    //                                     value
-    //                                 }
-    //                             }
-    //                         }                                                      
-    //                     }
-    //                     userErrors {
-    //                         field
-    //                         message
-    //                     }
-    //                 }
-    //             }';
-               
-    //             $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //             // Outils::addLog('resultat creation variante');
-    //             // Outils::addLog(json_encode($response));
-    //             // Outils::addLog('fin creation variante');
-    //             $pimDecl = $pimcore_product->getDecli();
-    //             foreach($response['data']['productVariantsBulkCreate']['productVariants'] as $var){
-    //                 foreach($pimDecl as $pDecl){
-    //                     if($pDecl->getReference_declinaison() == $var['inventoryItem']['sku']){
-    //                         Outils::addCrossid(object: $pDecl, source: $this->diffusion, ext_id: $var['id']);
-    //                     }
-    //                 }
-    //             }       
- 
-    //             return json_encode($result);
-    //         } catch
-    //         (ClientExceptionInterface $e) {
-    //             return $e->getMessage();
-    //         } catch (UninitializedContextException $e) {
-    //             return $e->getMessage();
-    //         }
-    //     } 
-    //     else { // crossId, donc on connait le produit shopify => updates
-    //         // Outils::addLog('cas update');
-    //         try {
-
-    //             $query = 'query CollectionsForProduct($productId: ID!) {
-    //                 product(id: $productId) {
-    //                   collections(first: 10) {
-    //                     nodes {
-    //                       id
-    //                       title
-    //                     }
-    //                   }
-    //                 }
-    //               }';
-
-    //             $variables = [
-    //             "productId" => $crossID,
-    //             ];
-
-    //             $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //             // Outils::addLog(json_encode($response));
-
-    //             // on determine les collections sur le produit shopify
-    //             $listCollectionToRemove = [];
-    //             if(isset($response['data']['product']['collections']['nodes'])){
-    //                 foreach($response['data']['product']['collections']['nodes'] as $node){
-    //                     $listCollectionToRemove[] = $node['id'];
-    //                 }
-    //             }
-
-    //             // on determine les collection a virer
-                
-    //             $temp = array_diff($listCollectionToRemove, $shopify_product['product']['collectionsToJoin']);
-
-    //             $variables = [
-    //                 "input" => [
-    //                     "id" => $crossID,
-    //                     // "title" => $shopify_product['product']['title'],
-    //                     // "descriptionHtml" => $shopify_product['product']['body_html'],
-    //                     // // "variants" => $shopify_product['product']['variants'],
-    //                     // // "category" => $shopify_product['product']['product_type'],
-    //                     // "productType" => $shopify_product['product']['product_type'],
-    //                     // "status" => $shopify_product['product']['status'],
-    //                     // "collectionsToJoin" => $shopify_product['product']['collectionsToJoin'],
-    //                     // "collectionsToLeave" => $temp,
-    //                 ],
-    //             ];
-    //             // Outils::addLog('variables update product');
-    //             // Outils::addLog(json_encode($variables));
-    //             $query = 'mutation ProductUpdate($input: ProductInput!) {
-    //                 productUpdate(input: $input) {
-    //                   product {
-    //                     id
-    //                     title
-    //                     descriptionHtml
-    //                     productType
-    //                     status
-    //                   }
-    //                   userErrors {
-    //                     field
-    //                     message
-    //                   }
-    //                 }
-    //               }';
-    //             $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-    //             // Outils::addLog('resultat update product');
-    //             // Outils::addLog(json_encode($result));
-
-    //             // Outils::addLog('update variante');
-    //             $query = 'mutation UpdateProductVariantsOptionValuesInBulk($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-    //             productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-    //                 product {
-    //                     id
-    //                     }
-    //                     productVariants {
-    //                     id
-    //                     title
-    //                     price
-    //                     }
-    //                     userErrors {
-    //                     field
-    //                     message
-    //                     }
-    //                 }
-    //             }';
-    //             // $query = 'mutation UpdateProductVariantsOptionValuesInBulk($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-    //             // productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-    //             //     product {
-    //             //         id
-    //             //         }
-    //             //         productVariants {
-    //             //         id
-    //             //         title
-    //             //         selectedOptions {
-    //             //             name
-    //             //             value
-    //             //         }
-    //             //         barcode
-    //             //         price
-    //             //         inventoryPolicy                            
-    //             //         inventoryItem {
-    //             //             sku
-    //             //             measurement {
-    //             //                 weight {
-    //             //                     unit
-    //             //                     value
-    //             //                 }
-    //             //             }
-    //             //         }  
-    //             //         }
-    //             //         userErrors {
-    //             //         field
-    //             //         message
-    //             //         }
-    //             //     }
-    //             // }';
-
-    //             $pimDecl = $pimcore_product->getDecli();
-    //             $variantShopify = [];
-
-    //             ////////////////////////////
-    //             ////////////////////////////
-    //             foreach ($pimcore_product->getDecli() as $variant) {
-    //                 $sto = 0;
-    //                 $stoDepot = Outils::getStockProduct($pimcore_product, $variant, 'dispo', 0, 0, 0 ,1);
-    //                 foreach($stoDepot as $depot){
-    //                     $sto = $sto + $depot['quantity_physique'];
-    //                 }
-    //                 $attributes = $variant->getAttribut();
-    //                 $options['option1']['value'] = null;
-    //                 $options['option2']['value'] = null;
-    //                 $options['option3']['value'] = null;
-    //                 foreach ($attributes as $attribute_value) {
-    //                     /* @var $attribute_value Attribut */
-    //                     $attribute = $attribute_value->getParent();
-    //                     $name = $attribute->getName($lang);
-    //                     $value = $attribute_value->getName($lang);
-        
-    //                     foreach ($options as $key => &$option) {
-    //                         if ($name === $option['name'] || $option['name'] === null) {
-    //                             $option['name'] = $name;
-    //                             $option['value'] = $value;
-    //                             $option['all_values'][] = $value;
-    //                             break;
-    //                         }
-    //                     }
-    //                     unset($option); // Important: annule la référence pour éviter les problèmes ultérieurs
-    //                 }
-    //                 // Outils::addLog('Mise à jour du produit (options) :' . json_encode($options), 1, [], 'NOMDULOG');
-    //                 $option1 = $options['option1'];
-    //                 $option2 = $options['option2'];
-    //                 $option3 = $options['option3'];
-        
-    //                 $optionTab = [];
-    //                 foreach($options as $option){
-    //                     if($option['value'] != null || $option['value'] != ''){
-    //                         $optionTab[] = $option['value'];
-    //                     }
-    //                 }
-    //                 $idVar = 0;
-    //                 foreach($pimDecl as $pDecl){
-    //                     if($pDecl->getReference_declinaison() == $variant->getReference_declinaison()){
-    //                         $idVar = Outils::getCrossId($pDecl, $this->diffusion);
-    //                     }
-    //                 }
-    //                 if(empty($idVar)){
-    //                     continue;
-    //                 }
-    //                 $price = Outils::getBestPriceVente(product: $pimcore_product,tax: true, id_diffusion: $this->diffusion->getId(), id_declinaison: $variant->getId());
-    //                 $variantShopify[] = [
-    //                     // 'title' => 'par defaut',
-    //                     'id' => $idVar,
-    //                     'price' => $price ?? $pimcore_product->getPrice_recommended(),
-    //                     // 'inventoryItem' => [
-    //                     // s'sku' => $variant->getReference_declinaison(),
-    //                     //     // 'cost' => $pimcore_product->getPrice_buying_default(),
-    //                     //     'measurement' => [
-    //                     //         'weight' => [
-    //                     //             'value' => $variant->getWeight(),
-    //                     //             // 'unit' => Dataobject::getByPath('/Config/unit_weight')->getValeur(),
-    //                     //             'unit' => 'GRAMS',
-    //                     //         ],
-    //                     //     ],
-    //                     // ],
-    //                     // 'inventoryPolicy' => self::INVENTORY_POLICY,
-        
-    //                     // 'barcode' => $variant->getEan13(),
-    //                     'optionValues' => [ // Options for the variant (e.g., Size, Color)
-    //                         [ 
-    //                             'name' => join(' / ', $optionTab),
-    //                             'optionName' => 'Title' 
-    //                         ],
-    //                     ],
-    //                 ];
-    //             }
-
-    //             ///////////////////////
-    //             ///////////////////////
-
-
-    //             $variables = [
-    //                 'productId' => $crossID,
-    //                 'variants' => $variantShopify,
-    //             ];
-                
-    //             // Outils::addLog(json_encode($variables));
-    //             if(!empty($variantShopify)){
-    //                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //                 // Outils::addLog('resultat update variantes');
-    //                 // Outils::addLog(json_encode($response));
-    //             }
-                
-    //             // $result = $this->client->post(
-    //             //     path: 'products',
-    //             //     body: $shopify_product
-    //             // )->getDecodedBody();
-    
-    //             //
-    //             // }
-                
-                
-    //             // Outils::addCrossid(object: $pimcore_product, source: $this->diffusion, ext_id: $result['data']['productCreate']['product']['id']);
-                
-    //             // Outils::addLog('fin');
-    //             return json_encode($result);
-    //         } catch
-    //         (ClientExceptionInterface $e) {
-    //             return $e->getMessage();
-    //         } catch (UninitializedContextException $e) {
-    //             return $e->getMessage();
-    //         }
-    //     }  
-    //     return true; 
-    // }
 
     /**
      * Supprimer un produit dans Shopify
@@ -1661,7 +960,7 @@ class ShopifyApiClient extends ecShopifyBundle
     // }
     public function deleteProduct(Product $pimcore_product): array|string|null
     {
-        Outils::addLog('fonction deleteProduct ', 1);
+        Outils::addLog('fonction deleteProduct ');
         $diffusionActive = $pimcore_product->getDiffusions_active();
         $tabIdDiffAct = [];
         foreach($diffusionActive as $diff){
@@ -1711,10 +1010,10 @@ class ShopifyApiClient extends ecShopifyBundle
             // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') resulte '. json_encode($result));                
         } catch
         (ClientExceptionInterface $e) {
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
             return true;
         } catch (UninitializedContextException $e) {
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
             return true;
         }
         return true;
@@ -1755,10 +1054,10 @@ class ShopifyApiClient extends ecShopifyBundle
             unset($product);
             return $data;
         } catch (ClientExceptionInterface $e) {
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
             return true;
         } catch (MissingArgumentException|UninitializedContextException|JsonException $e) {
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
             return true;
         }
     }
@@ -1781,7 +1080,7 @@ class ShopifyApiClient extends ecShopifyBundle
         }';
         try{
             $response = $this->client->query(['query' => $query])->getDecodedBody();
-            Outils::addLog(json_encode($response));
+            // Outils::addLog(json_encode($response));
         } catch
         (ClientExceptionInterface $e) {
             return $e->getMessage();
@@ -2169,10 +1468,10 @@ class ShopifyApiClient extends ecShopifyBundle
                 // Outils::addLog(json_encode($response));
             } catch
             (ClientExceptionInterface $e) {
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
                 return true;
             } catch (UninitializedContextException $e) {
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 1);
                 return true;
             }
         } else { // CAS CREATION
@@ -2214,13 +1513,13 @@ class ShopifyApiClient extends ecShopifyBundle
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
                 $prodVar = $response['data']['productVariantsBulkCreate']['productVariants'];
-                // Outils::addLog(json_encode($response)); 
+                Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($response)); 
             } catch
             (ClientExceptionInterface $e) {
-                Outils::addLog('ShopifyAPiClient ' . __LINE__ . $e->getMessage(), 3);
+                Outils::addLog('ShopifyAPiClient ' . __LINE__ . $e->getMessage());
                 return true;
             } catch (UninitializedContextException $e) {
-                Outils::addLog('ShopifyAPiClient ' . __LINE__ . $e->getMessage(), 3);
+                Outils::addLog('ShopifyAPiClient ' . __LINE__ . $e->getMessage());
                 return true;
             }
             $prodVar = reset($prodVar);
@@ -2326,10 +1625,10 @@ class ShopifyApiClient extends ecShopifyBundle
                 // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response)); 
             } catch
             (ClientExceptionInterface $e) {
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
                 return true;
             } catch (UninitializedContextException $e) {
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage(), 3);
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. $e->getMessage());
                 return true;
             }
         } 

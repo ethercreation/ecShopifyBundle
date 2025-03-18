@@ -89,11 +89,11 @@ class PimcoreHookController extends DefaultController
         if($obj->getClassName() != 'product'){
             return new Response('<pre>ok</pre>');
         }
-        Outils::addLog('fonction hookUpdateStockShopify ', 3);
+        Outils::addLog('fonction hookUpdateStockShopify ');
         // $product = $params['product'];
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateStock($produit);
-        Outils::addLog('Modification stock d\'un produit: ' . $result, 3, [], 'NOMDULOG');
+        Outils::addLog('Modification stock d\'un produit: ' . $result);
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
@@ -108,7 +108,7 @@ class PimcoreHookController extends DefaultController
          * @var Product $product
          */
         // Outils::addLog('fonction hookUpdateProduct', 1, [], 'NOMDULOG');
-        Outils::addLog('debut fonction hookUpdateProduct', 3, [], 'NOMDULOG');
+        Outils::addLog('debut fonction hookUpdateProduct');
         
         $product = $params['product'];
         if($product->getClassName() != 'product'){
@@ -117,8 +117,8 @@ class PimcoreHookController extends DefaultController
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateProduct($product);
 
-        Outils::addLog('Modification d\'un produit: ' . $result, 1, [], 'NOMDULOG');
-        Outils::addLog('fin fonction hookUpdateProduct', 3, [], 'NOMDULOG');
+        Outils::addLog('Modification d\'un produit: ' . $result);
+        Outils::addLog('fin fonction hookUpdateProduct');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
@@ -135,10 +135,10 @@ class PimcoreHookController extends DefaultController
         if($product->getClassName() != 'product'){
             return new Response('<pre>ok</pre>');
         }
-        Outils::addLog('fonction hookDeleteBeforeProduct ', 3);
+        Outils::addLog('fonction hookDeleteBeforeProduct ');
         $shopify = new ShopifyApiClient();
         $result = $shopify->deleteProduct($product);
-        Outils::addLog('fin fonction hookDeleteBeforeProduct ', 3);
+        Outils::addLog('fin fonction hookDeleteBeforeProduct ');
         return new Response('ok');
     }
 
@@ -221,7 +221,7 @@ class PimcoreHookController extends DefaultController
 
     public function hookUpdateDecli($params)
     {
-        Outils::addLog('debut fonction hookUpdateDecli', 3, [], 'NOMDULOG');
+        Outils::addLog('debut fonction hookUpdateDecli');
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
         if($decli->getClassName() != 'declinaison'){
@@ -232,13 +232,13 @@ class PimcoreHookController extends DefaultController
         $result = $shopify->updateDecli($decli);
         // $result = '';
         // Outils::addLog('Modification d\'un produit: ' . $result, 1, [], 'NOMDULOG');
-        Outils::addLog('fin fonction hookUpdateDecli', 3, [], 'NOMDULOG');
+        Outils::addLog('fin fonction hookUpdateDecli');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
     public function hookDeleteDecli($params)
     {
-        Outils::addLog('fonction hookDeleteDecli ', 3);
+        Outils::addLog('fonction hookDeleteDecli ');
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
         if($decli->getClassName() != 'declinaison'){
@@ -247,24 +247,23 @@ class PimcoreHookController extends DefaultController
         /** @var Product $product */
         $shopify_client = new ShopifyApiClient();
         $result = $shopify_client->deleteDecli($decli);
-        Outils::addLog('Suppression d\'une déclinaison: ' . json_encode($result), 1, [], 'NOMDULOG');
+        Outils::addLog('Suppression d\'une déclinaison: ' . json_encode($result));
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
     public function hookUpdatePriceSelling($params) {
-        Outils::addLog('fonction hookUpdatePriceSelling', 3);
+        Outils::addLog('fonction hookUpdatePriceSelling');
         
         $pricing = $params['priceSelling'];   
         $shopify_client = new ShopifyApiClient();
         $decl = $pricing->getDecli();
         if($decl->getClassName() != 'declinaison'){
-            return true;
+            return new Response('<pre>ok</pre>');
         }
         $result = $shopify_client->updateDecliPrix($decl);
 
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
-
 
     /**
      * Actions à effectuer lors de la modification d'une déclinaison dans pimcore
