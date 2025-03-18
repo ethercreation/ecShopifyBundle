@@ -384,7 +384,7 @@ class ShopifyApiClient extends ecShopifyBundle
 
     public function updateStock(Product $pimcore_product)
     {
-        Outils::addLog('updateStock');
+        // Outils::addLog('updateStock');
 
         // Verif si produit actif
         $productActive = $pimcore_product->isPublished();
@@ -501,7 +501,7 @@ class ShopifyApiClient extends ecShopifyBundle
         //         ],
         //     ];
         // }
-        Outils::addLog('fin updateStock');
+        // Outils::addLog('fin updateStock');
         return true;
     }
 
@@ -1554,7 +1554,7 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     public function updateDecliPrix(Declinaison $decli)
     {
-        Outils::addLog('debut fonction updateDecliPrix ');
+        // Outils::addLog('debut fonction updateDecliPrix ');
         
         $lang = Tool::getValidLanguages()[0];
         $pimcore_product = DataObject::getById($decli->getParentId());

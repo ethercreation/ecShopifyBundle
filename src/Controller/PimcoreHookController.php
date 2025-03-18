@@ -79,6 +79,7 @@ class PimcoreHookController extends DefaultController
 
     public function hookUpdateStockShopify($params): Response
     {
+        // Outils::addLog('fonction hookUpdateStockShopify ');
         /**
          * @var Product $product
          */
@@ -86,10 +87,14 @@ class PimcoreHookController extends DefaultController
         // $object['object'] = 'stock';
         $obj->setHideUnpublished(false);
         $produit = $obj->getStock_product()??0;
-        if($obj->getClassName() != 'product'){
+        
+        if(!is_object($produit)){
             return new Response('<pre>ok</pre>');
         }
-        Outils::addLog('fonction hookUpdateStockShopify ');
+        if($produit->getClassName() != 'product'){
+            return new Response('<pre>ok</pre>');
+        }
+        
         // $product = $params['product'];
         $shopify = new ShopifyApiClient();
         $result = $shopify->updateStock($produit);
@@ -252,11 +257,17 @@ class PimcoreHookController extends DefaultController
     }
 
     public function hookUpdatePriceSelling($params) {
-        Outils::addLog('fonction hookUpdatePriceSelling');
+        //Outils::addLog('fonction hookUpdatePriceSelling');
         
         $pricing = $params['priceSelling'];   
+        $pricing->setHideUnpublished(false);
+
         $shopify_client = new ShopifyApiClient();
         $decl = $pricing->getDecli();
+        if(!is_object($decl)){
+            return new Response('<pre>ok</pre>');
+        }
+        // Outils::addLog('id : ' . $pricing->getId());
         if($decl->getClassName() != 'declinaison'){
             return new Response('<pre>ok</pre>');
         }
