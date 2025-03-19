@@ -310,7 +310,8 @@ class ImportController extends FrontendController
                 'info' => $info
             ]));
         }
-        
+        dump($decli);
+        exit;
         $feature = [];
         $value = [];
         if (array_key_exists('edges', json_decode($datas['metafields'], true))) {
