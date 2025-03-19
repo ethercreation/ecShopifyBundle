@@ -357,14 +357,14 @@ class ImportController extends FrontendController
             Outils::putCache('import_product', $import_product);
         }
 
+        $tabReu = [];
         // Verif si déjà crossid
         $idPim = Outils::getExist($prod->id, $id_diffusion, 'crossid', 'product');
         if ($idPim > 0) {
             Outils::addLog('Shopify ' . $prod->id . ' - OK by ID ' . $idPim);
-            return 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
+            $tabReu[] = 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
         }
 
-        $tabReu = [];
         foreach ($decli as $decliVerif) {
             $idPim = Outils::getExist($decliVerif->info->id, $id_diffusion, 'crossid', 'declinaison');
             if ($idPim > 0) {
