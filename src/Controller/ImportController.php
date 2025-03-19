@@ -65,6 +65,29 @@ class ImportController extends FrontendController
         $this->categParent = DataObject::getByPath('/Category/CategoryDiffusion/Shopify')->getId();
     }
     
+    public function getFusion() {
+        #Vérif matching Produit
+        $listDoubleID = Outils::query('SELECT id, diffusions_active, crossid 
+                                                FROM object_6 o
+                                                WHERE (
+                                                    REPLACE(
+                                                        TRIM(BOTH "," FROM 
+                                                            REPLACE(REPLACE(o.crossid, "object|", ""), ",object", "") 
+                                                        ), 
+                                                        ",,", ","
+                                                    ) 
+                                                    <> TRIM(BOTH "," FROM o.diffusions_active)
+                                                )');
+        foreach ($listDoubleID as $doubleID) {
+            $dif = trim($doubleID['crossid'], ',');
+            $dif = str_replace('object|', '', $dif);
+            $dif = explode(',', $dif);
+            $obj = DataObject::getById($doubleID['id']);
+            $obj = $obj->setDiffusion_active($dif);
+            $obj->save();
+        }
+    }
+
 
     /**
      * @throws MissingArgumentException
@@ -341,44 +364,100 @@ class ImportController extends FrontendController
             return 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
         }
 
-        // Verif si EAN13-
-        if (strlen($prod->ean13) == 13 && $prod->ean13 != '0000000000000') {
-            $idPim = Outils::getExist($prod->ean13, "", 'ean13', 'product');
-            if ($idPim && $idPim != '') {
-                $idPims = json_decode($idPim, true);
-                if (is_array($idPims) && array_key_exists(0, $idPims)) {
-                    Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13 . ' - IDPIM ' . $idPim);
-                    Outils::addCrossid($idPims[0]['id'], $id_diffusion, $prod->id, false);
-                    $objpim = DataObject::getById($idPims[0]['id']);
-                    $objpim->forcequeue = true;
-                    $objpim->save();
-                    $this->updateObjectPrice($idPims[0]['id']);
-                    return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13;
+        foreach ($decli as $decliVerif) {
+            $idPim = Outils::getExist($decliVerif->info->id, $id_diffusion, 'crossid', 'declinaison');
+            if ($idPim > 0) {
+                Outils::addLog('Shopify ' . $prod->id . ' - OK by ID ' . $idPim);
+                return 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
+            }
+
+            // Verif si EAN13-
+            if (strlen($decliVerif->info->ean13) == 13 && $decliVerif->infoean13 != '0000000000000') {
+                $idPim = Outils::getExist($decliVerif->info->ean13, "", 'ean13', 'declinaison');
+                if ($idPim && $idPim != '') {
+                    $idPims = json_decode($idPim, true);
+                    if (is_array($idPims) && array_key_exists(0, $idPims)) {
+                        Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $decliVerif->info->ean13 . ' - IDPIM ' . $idPim);
+                        Outils::addCrossid($idPims[0]['id'], $id_diffusion, $decliVerif->info->id, false);
+                        $objpim = DataObject::getById($idPims[0]['id']);                        
+                        Outils::addCrossid($objpim->getParentId(), $id_diffusion, $prod->id, false);
+                        $objParent = DataObject::getById($objpim->getParentId());
+                        $objParent->forcequeue = true;
+                        $objParent->save();
+                        $this->updateObjectPrice($infoDecli[0]['id']);
+                        return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $decliVerif->info->ean13;
+                    }
                 }
             }
-        }
 
-        // Verif si SKU
-        if ($prod->reference) {
-            $idPimDecli = Outils::getExist($prod->reference, '', 'crossid', 'declinaison');
-            if ($idPimDecli && $idPimDecli != '') {
-                $infoDecli = json_decode($idPimDecli, true);
-                if (is_array($infoDecli) && array_key_exists(0, $infoDecli)) {
-                    $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
-                    $diff = $diffusion;
-                    if ($idPim > 0) {
-                        Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $prod->id, false);
-                        Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
-                        $objpim = DataObject::getById($idPim);
-                        $objpim->forcequeue = true;
-                        $objpim->save();
-                        $this->updateObjectPrice($infoDecli[0]['id']);
-                        Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
-                        return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
+            if ($decliVerif->info->reference) {
+                $idPimDecli = Outils::getExist($decliVerif->info->reference, '', 'crossid', 'declinaison');
+                if ($idPimDecli && $idPimDecli != '') {
+                    $infoDecli = json_decode($idPimDecli, true);
+                    if (is_array($infoDecli) && array_key_exists(0, $infoDecli)) {
+                        $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
+                        $diff = $diffusion;
+                        if ($idPim > 0) {
+                            Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $decliVerif->info->id, false);
+                            Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
+                            $objpim = DataObject::getById($idPim);
+                            $objpim->forcequeue = true;
+                            $objpim->save();
+                            $this->updateObjectPrice($infoDecli[0]['id']);
+                            Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decliVerif->info->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
+                            return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decliVerif->info->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
+                        }
                     }
                 }
             }
         }
+
+        // // Verif si déjà crossid
+        // $idPim = Outils::getExist($prod->id, $id_diffusion, 'crossid', 'product');
+        // if ($idPim > 0) {
+        //     Outils::addLog('Shopify ' . $prod->id . ' - OK by ID ' . $idPim);
+        //     return 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
+        // }
+        
+
+        // Verif si EAN13-
+        // if (strlen($prod->ean13) == 13 && $prod->ean13 != '0000000000000') {
+        //     $idPim = Outils::getExist($prod->ean13, "", 'ean13', 'product');
+        //     if ($idPim && $idPim != '') {
+        //         $idPims = json_decode($idPim, true);
+        //         if (is_array($idPims) && array_key_exists(0, $idPims)) {
+        //             Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13 . ' - IDPIM ' . $idPim);
+        //             Outils::addCrossid($idPims[0]['id'], $id_diffusion, $prod->id, false);
+        //             $objpim = DataObject::getById($idPims[0]['id']);
+        //             $objpim->forcequeue = true;
+        //             $objpim->save();
+        //             $this->updateObjectPrice($idPims[0]['id']);
+        //             return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $prod->ean13;
+        //         }
+        //     }
+        // }
+
+        // Verif si SKU
+        // if ($prod->reference) {
+        //     $idPimDecli = Outils::getExist($prod->reference, '', 'crossid', 'declinaison');
+        //     if ($idPimDecli && $idPimDecli != '') {
+        //         $infoDecli = json_decode($idPimDecli, true);
+        //         if (is_array($infoDecli) && array_key_exists(0, $infoDecli)) {
+        //             $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
+        //             $diff = $diffusion;
+        //             if ($idPim > 0) {
+        //                 Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $prod->id, false);
+        //                 Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
+        //                 $objpim = DataObject::getById($idPim);
+        //                 $objpim->forcequeue = true;
+        //                 $objpim->save();
+        //                 $this->updateObjectPrice($infoDecli[0]['id']);
+        //                 Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
+        //                 return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $prod->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
+        //             }
+        //         }
+        //     }
+        // }
 
         // // Verif si SKU
         // if ($prod->reference) {

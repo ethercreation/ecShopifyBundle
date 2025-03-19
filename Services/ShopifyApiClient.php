@@ -405,6 +405,17 @@ class ShopifyApiClient extends ecShopifyBundle
 
         $variants = [];
         foreach ($pimcore_product->getDecli() as $variant) {
+
+            $isActive = $variant->getPublished();
+            if(!$isActive){
+                continue;
+            }
+
+            $crossId = Outils::getCrossId($variant, $this->diffusion);
+            if(!$crossId){
+                continue;
+            }
+            
             $sto = 0;
             $stoDepot = Outils::getStockProduct($pimcore_product, $variant, 'dispo', 0, 0, 0 ,1);
 
@@ -539,7 +550,7 @@ class ShopifyApiClient extends ecShopifyBundle
 
         $time = microtime(true);
         $lang = Tool::getValidLanguages()[0];
-        Outils::addLog('fonction updateProduct ' . $time);
+        // Outils::addLog('fonction updateProduct ' . $time);
         // Outils::addLog($pimcore_product->getId(), 1);
         /////////////
         //// Partie Collection
@@ -884,83 +895,13 @@ class ShopifyApiClient extends ecShopifyBundle
             }
         } 
         
-        Outils::addLog('fin fonction updateProduct ');
+        // Outils::addLog('fin fonction updateProduct ');
         return true; 
     }
 
-    /**
-     * Supprimer un produit dans Shopify
-     */
-    // public function deleteProduct_old(Product $pimcore_product): array|string|null
-    // {
-    //     Outils::addLog('fonction deleteProduct ', 1);
-    //     // Outils::addLog(json_encode($pimcore_product->getId()));
-
-    //     try {
-
-    //         // suppression variante
-    //         $idProductShopify = Outils::getCrossId($pimcore_product, source: $this->diffusion);
-    //         // Outils::addLog($idProductShopify);
-    //         $tabIdVariantShopify = [];
-    //         foreach ($pimcore_product->getDecli() as $variant){
-    //             $tabIdVariantShopify[] = Outils::getCrossId($variant, $this->diffusion);
-    //             // Outils::removeCrossid(object: $variant, source: $this->diffusion);
-    //             unset($variant);
-    //         }
-    //         // Outils::addLog(json_encode($tabIdVariantShopify));
-    //         $query = 'mutation bulkDeleteProductVariants($productId: ID!, $variantsIds: [ID!]!) {
-    //             productVariantsBulkDelete(productId: $productId, variantsIds: $variantsIds) {
-    //                 product {
-    //                     id
-    //                     title
-    //                 }
-    //                 userErrors {
-    //                     field
-    //                     message
-    //                 }
-    //             }
-    //         }';
-
-    //         $variables = [
-    //             'productId' => $idProductShopify,
-    //             'variantsIds' => $tabIdVariantShopify
-    //         ];
-            
-    //         $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-    //         // Outils::addLog('resultat suppression variants');
-    //         // Outils::addLog(json_encode($response));
-    //         // suppression product
-    //         $query = 'mutation {
-    //             productDelete(input: {id: "'. $idProductShopify .'"}) {
-    //               deletedProductId
-    //               userErrors {
-    //                 field
-    //                 message
-    //               }
-    //             }
-    //           }';
-
-            
-    //         // $data = $this->client->delete(
-    //         //     path: 'products/' . Outils::getCrossId(obj: $pimcore_product, source: $this->diffusion),
-    //         // );
-    //         $data = $this->client->query(['query' => $query])->getDecodedBody();
-    //         // Outils::addLog('Suppression du produit :' . json_encode($data), 1, [], 'NOMDULOG');
-    //         // Outils::addLog('resultat suppression product');
-    //         // Outils::addLog(json_encode($data));
-          
-    //         // Outils::removeCrossid(object: $pimcore_product, source: $this->diffusion);
-    //         unset($product);
-    //         return $data;
-    //     } catch (ClientExceptionInterface $e) {
-    //         return $e->getMessage();
-    //     } catch (MissingArgumentException|UninitializedContextException|JsonException $e) {
-    //         return $e->getMessage();
-    //     }
-    // }
     public function deleteProduct(Product $pimcore_product): array|string|null
     {
-        Outils::addLog('fonction deleteProduct ');
+        // Outils::addLog('fonction deleteProduct ');
         $diffusionActive = $pimcore_product->getDiffusions_active();
         $tabIdDiffAct = [];
         foreach($diffusionActive as $diff){
@@ -1273,7 +1214,7 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     public function updateDecli(Declinaison $decli)
     {
-        Outils::addLog('debut fonction updateDecli ');
+        // Outils::addLog('debut fonction updateDecli ');
         
         $lang = Tool::getValidLanguages()[0];
         $pimcore_product = DataObject::getById($decli->getParentId());
@@ -1513,7 +1454,7 @@ class ShopifyApiClient extends ecShopifyBundle
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
                 $prodVar = $response['data']['productVariantsBulkCreate']['productVariants'];
-                Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($response)); 
+                // Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($response)); 
             } catch
             (ClientExceptionInterface $e) {
                 Outils::addLog('ShopifyAPiClient ' . __LINE__ . $e->getMessage());
@@ -1545,7 +1486,7 @@ class ShopifyApiClient extends ecShopifyBundle
             }
      
         }
-        Outils::addLog('fin fonction updateDecli');
+        // Outils::addLog('fin fonction updateDecli');
     }
     /**
      * @throws ClientExceptionInterface

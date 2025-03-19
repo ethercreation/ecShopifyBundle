@@ -113,9 +113,12 @@ class PimcoreHookController extends DefaultController
          * @var Product $product
          */
         // Outils::addLog('fonction hookUpdateProduct', 1, [], 'NOMDULOG');
-        Outils::addLog('debut fonction hookUpdateProduct');
+        // Outils::addLog('debut fonction hookUpdateProduct');
         
         $product = $params['product'];
+        if(!is_object($product)){
+            return new Response('<pre>ok</pre>');
+        }
         if($product->getClassName() != 'product'){
             return new Response('<pre>ok</pre>');
         }
@@ -123,7 +126,7 @@ class PimcoreHookController extends DefaultController
         $result = $shopify->updateProduct($product);
 
         Outils::addLog('Modification d\'un produit: ' . $result);
-        Outils::addLog('fin fonction hookUpdateProduct');
+        // Outils::addLog('fin fonction hookUpdateProduct');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
@@ -137,13 +140,16 @@ class PimcoreHookController extends DefaultController
          * @var Product $product
          */
         $product = $params['product'];
+        if(!is_object($product)){
+            return new Response('<pre>ok</pre>');
+        }
         if($product->getClassName() != 'product'){
             return new Response('<pre>ok</pre>');
         }
-        Outils::addLog('fonction hookDeleteBeforeProduct ');
+        // Outils::addLog('fonction hookDeleteBeforeProduct ');
         $shopify = new ShopifyApiClient();
         $result = $shopify->deleteProduct($product);
-        Outils::addLog('fin fonction hookDeleteBeforeProduct ');
+        // Outils::addLog('fin fonction hookDeleteBeforeProduct ');
         return new Response('ok');
     }
 
@@ -226,9 +232,12 @@ class PimcoreHookController extends DefaultController
 
     public function hookUpdateDecli($params)
     {
-        Outils::addLog('debut fonction hookUpdateDecli');
+        // Outils::addLog('debut fonction hookUpdateDecli');
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
+        if(!is_object($decli)){
+            return new Response('<pre>ok</pre>');
+        }
         if($decli->getClassName() != 'declinaison'){
             return new Response('<pre>ok</pre>');
         }
@@ -237,15 +246,18 @@ class PimcoreHookController extends DefaultController
         $result = $shopify->updateDecli($decli);
         // $result = '';
         // Outils::addLog('Modification d\'un produit: ' . $result, 1, [], 'NOMDULOG');
-        Outils::addLog('fin fonction hookUpdateDecli');
+        // Outils::addLog('fin fonction hookUpdateDecli');
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
     public function hookDeleteDecli($params)
     {
-        Outils::addLog('fonction hookDeleteDecli ');
+        // Outils::addLog('fonction hookDeleteDecli ');
         /** @var Declinaison $decli */
         $decli = $params['declinaison'];
+        if(!is_object($decli)){
+            return new Response('<pre>ok</pre>');
+        }
         if($decli->getClassName() != 'declinaison'){
             return new Response('<pre>ok</pre>');
         }
