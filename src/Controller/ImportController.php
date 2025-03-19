@@ -364,11 +364,12 @@ class ImportController extends FrontendController
             return 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
         }
 
+        $tabReu = [];
         foreach ($decli as $decliVerif) {
             $idPim = Outils::getExist($decliVerif->info->id, $id_diffusion, 'crossid', 'declinaison');
             if ($idPim > 0) {
                 Outils::addLog('Shopify ' . $prod->id . ' - OK by ID ' . $idPim);
-                return 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
+                $tabReu[] = 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
             }
 
             // Verif si EAN13-
@@ -385,7 +386,7 @@ class ImportController extends FrontendController
                         $objParent->forcequeue = true;
                         $objParent->save();
                         $this->updateObjectPrice($infoDecli[0]['id']);
-                        return 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $decliVerif->info->ean13;
+                        $tabReu[] = 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $decliVerif->info->ean13;
                     }
                 }
             }
@@ -405,13 +406,16 @@ class ImportController extends FrontendController
                             $objpim->save();
                             $this->updateObjectPrice($infoDecli[0]['id']);
                             Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decliVerif->info->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
-                            return 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decliVerif->info->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
+                            $tabReu[] = 'Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decliVerif->info->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id'];
                         }
                     }
                 }
             }
         }
 
+        if (count($tabReu)) {
+            return json_encode($tabReu);
+        }
         // // Verif si déjà crossid
         // $idPim = Outils::getExist($prod->id, $id_diffusion, 'crossid', 'product');
         // if ($idPim > 0) {
