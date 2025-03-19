@@ -366,8 +366,6 @@ class ImportController extends FrontendController
         }
 
         foreach ($decli->info as $decliVerif) {
-            dump($decliVerif);
-            exit;
             $idPim = Outils::getExist($decliVerif->id, $id_diffusion, 'crossid', 'declinaison');
             if ($idPim > 0) {
                 Outils::addLog('Shopify ' . $prod->id . ' - OK by ID ' . $idPim);
