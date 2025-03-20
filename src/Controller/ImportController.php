@@ -69,7 +69,7 @@ class ImportController extends FrontendController
     public function getFusion() {
         #Vérif matching Produit
         $listDoubleID = Outils::query('SELECT id, diffusions_active, crossid 
-                                                FROM object_6 o
+                                                FROM object_' . Outils::getIDClass('product').' o
                                                 WHERE (
                                                     REPLACE(
                                                         TRIM(BOTH "," FROM 
@@ -86,11 +86,11 @@ class ImportController extends FrontendController
             $obj = DataObject::getById($doubleID['id']);
             $obj = $obj->setDiffusion_active($dif);
             $obj->save();
+            $this->updateObjectPrice($doubleID['id']);          
             dump($obj->getId());
             exit;
         }
     }
-
 
     /**
      * @throws MissingArgumentException
