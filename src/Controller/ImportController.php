@@ -389,7 +389,6 @@ class ImportController extends FrontendController
                         $objParent->forcequeue = true;
                         $objParent->save();
                         $objpim->forcequeue = true;
-                        $objpim->save();
                         $this->updateObjectPrice($infoDecli[0]['id']);
                         $tabReu[] = 'Shopify ' . $prod->id . ' - OK by EAN13 ' . $decliVerif->ean13;
                     }
@@ -401,19 +400,16 @@ class ImportController extends FrontendController
                 if ($idPimDecli && $idPimDecli != '') {
                     $infoDecli = json_decode($idPimDecli, true);
                     if (is_array($infoDecli) && array_key_exists(0, $infoDecli)) {
-                        $idPims = json_decode($idPim, true);
-                        if (is_array($idPims) && array_key_exists(0, $idPims)) {
-                            Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $decliVerif->ean13 . ' - IDPIM ' . $idPim);
-                            Outils::addCrossid($idPims[0]['id'], $id_diffusion, $decliVerif->id, false);
-                            $objpim = DataObject::getById($idPims[0]['id']);                        
-                            Outils::addCrossid($objpim->getParentId(), $id_diffusion, $prod->id, false);
-                            $objParent = DataObject::getById($objpim->getParentId());
-                            $listDi = $objParent->getDiffusions_active();
+                        $idPim = DataObject::getById($infoDecli[0]['id'])->getParentID();
+                        $diff = $diffusion;
+                        if ($idPim > 0) {
+                            Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $decliVerif->id, false);
+                            Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
+                            $objpim = DataObject::getById($idPim);
+                            $objpim->forcequeue = true;                            
+                            $listDi = $objpim->getDiffusions_active();
                             $listDi[] = $id_diffusion;
-                            $objParent->setDiffusions_active($listDi);
-                            $objParent->forcequeue = true;
-                            $objParent->save();
-                            $objpim->forcequeue = true;
+                            $objpim->setDiffusions_active($listDi);
                             $objpim->save();
                             $this->updateObjectPrice($infoDecli[0]['id']);
                             Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decliVerif->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
