@@ -65,6 +65,7 @@ class ImportController extends FrontendController
         $this->categParent = DataObject::getByPath('/Category/CategoryDiffusion/Shopify')->getId();
     }
     
+    #[Route('/ec_shopify/getFusion')]
     public function getFusion() {
         #Vérif matching Produit
         $listDoubleID = Outils::query('SELECT id, diffusions_active, crossid 
@@ -85,6 +86,8 @@ class ImportController extends FrontendController
             $obj = DataObject::getById($doubleID['id']);
             $obj = $obj->setDiffusion_active($dif);
             $obj->save();
+            dump($obj->getId());
+            exit;
         }
     }
 
