@@ -87,8 +87,6 @@ class ImportController extends FrontendController
             $obj = $obj->setDiffusions_active($dif);
             $obj->save();
             $this->updateObjectPrice($doubleID['id']);          
-            dump($obj->getId());
-            exit;
         }
     }
 
