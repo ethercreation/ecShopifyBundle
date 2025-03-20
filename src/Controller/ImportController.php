@@ -383,6 +383,9 @@ class ImportController extends FrontendController
                         $objpim = DataObject::getById($idPims[0]['id']);                        
                         Outils::addCrossid($objpim->getParentId(), $id_diffusion, $prod->id, false);
                         $objParent = DataObject::getById($objpim->getParentId());
+                        $listDi = $objParent->getDiffusions_active();
+                        $listDi[] = $id_diffusion;
+                        $objParent->setDiffusions_active($listDi);
                         $objParent->forcequeue = true;
                         $objParent->save();
                         $this->updateObjectPrice($infoDecli[0]['id']);
@@ -402,7 +405,10 @@ class ImportController extends FrontendController
                             Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $decliVerif->id, false);
                             Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
                             $objpim = DataObject::getById($idPim);
-                            $objpim->forcequeue = true;
+                            $objpim->forcequeue = true;                            
+                            $listDi = $objParent->getDiffusions_active();
+                            $listDi[] = $id_diffusion;
+                            $objParent->setDiffusions_active($listDi);
                             $objpim->save();
                             $this->updateObjectPrice($infoDecli[0]['id']);
                             Outils::addLog('Shopify ' . $prod->id . ' - OK by SKU DECLI :  ' . $decliVerif->reference . ' - IDPIM ' . $idPim . '  - ID DECLI ' . $infoDecli[0]['id']);
