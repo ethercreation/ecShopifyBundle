@@ -84,7 +84,7 @@ class ImportController extends FrontendController
             $dif = str_replace('object|', '', $dif);
             $dif = explode(',', $dif);
             $obj = DataObject::getById($doubleID['id']);
-            $obj = $obj->setDiffusion_active($dif);
+            $obj = $obj->setDiffusions_active($dif);
             $obj->save();
             $this->updateObjectPrice($doubleID['id']);          
             dump($obj->getId());
