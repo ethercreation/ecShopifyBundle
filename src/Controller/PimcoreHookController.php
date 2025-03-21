@@ -79,7 +79,7 @@ class PimcoreHookController extends DefaultController
 
     public function hookUpdateStockShopify($params): Response
     {
-        // Outils::addLog('fonction hookUpdateStockShopify ');
+        Outils::addLog('fonction hookUpdateStockShopify ');
         /**
          * @var Product $product
          */
@@ -87,7 +87,8 @@ class PimcoreHookController extends DefaultController
         // $object['object'] = 'stock';
         $obj->setHideUnpublished(false);
         $produit = $obj->getStock_product()??0;
-        
+        Outils::addLog('Modification stock d\'un produit: ' . $obj->getID());
+        Outils::addLog('Modification stock d\'un produit: ' . $produit->getID());
         if(!is_object($produit)){
             return new Response('<pre>ok</pre>');
         }

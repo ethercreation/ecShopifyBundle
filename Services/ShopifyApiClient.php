@@ -134,27 +134,6 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     // public function getProducts()
     // {
-    //     try {
-    //         $data = $this->client->get(
-    //             path: 'products'
-    //         );
-    //         $products = $data->getDecodedBody()['products'];
-    //         foreach ($products as &$product) {
-    //             foreach ($product['variants'] as &$variant) {
-    //                 $inventory_item = $this->client->get(
-    //                     path: 'inventory_items', query: ['ids' => $variant['inventory_item_id']]
-    //                 );
-    //                 $variant['inventory_item'] = $inventory_item->getDecodedBody()['inventory_items'][0];
-    //             }
-    //         }
-    //         unset($variant);
-    //         unset($product);
-    //         return $products;
-    //     } catch (ClientExceptionInterface $e) {
-    //         return $e->getMessage();
-    //     } catch (MissingArgumentException|UninitializedContextException|JsonException $e) {
-    //         return $e->getMessage();
-    //     }
     // }
 
     /**
@@ -162,16 +141,6 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     // public function getProductCollections($id)
     // {
-    //     try {
-    //         $collection = $this->client->get(
-    //             path: 'custom_collections', query: ['product_id' => $id]
-    //         );
-    //         return json_decode(json_encode($collection->getDecodedBody()['custom_collections']), false);
-    //     } catch (ClientExceptionInterface $e) {
-    //         return $e->getMessage();
-    //     } catch (MissingArgumentException|UninitializedContextException|\JsonException $e) {
-    //         return $e->getMessage();
-    //     }
     // }
 
     /**
@@ -183,203 +152,6 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     // public function createProduct(Product $pimcore_product): string
     // {
-    //     Outils::addLog('on passe dans createProduct', 1);
-
-    //     if (Outils::getCrossId(obj: $pimcore_product, source: $this->diffusion) !== null) {
-    //         return 'Le produit existe déjà dans Shopify ';
-    //     }
-
-    //     $options = [
-    //         'option1' => ['name' => null, 'value' => null, 'all_values' => []],
-    //         'option2' => ['name' => null, 'value' => null, 'all_values' => []],
-    //         'option3' => ['name' => null, 'value' => null, 'all_values' => []]
-    //     ];
-    //     $variants = [];
-    //     foreach ($pimcore_product->getDecli() as $variant) {
-    //         $attributes = $variant->getAttribut();
-    //         $options['option1']['value'] = null;
-    //         $options['option2']['value'] = null;
-    //         $options['option3']['value'] = null;
-    //         foreach ($attributes as $attribute) {
-    //             $name = $attribute->getParent()->getName();
-    //             $value = $attribute->getName();
-
-    //             foreach ($options as $key => &$option) {
-    //                 if ($name === $option['name'] || $option['name'] === null) {
-    //                     $option['name'] = $name;
-    //                     $option['value'] = $value;
-    //                     $option['all_values'][] = $value;
-    //                     break;
-    //                 }
-    //             }
-    //             unset($option); // Important: annule la référence pour éviter les problèmes ultérieurs
-    //         }
-    //         $option1 = $options['option1'];
-    //         $option2 = $options['option2'];
-    //         $option3 = $options['option3'];
-
-    //         $variants[] = [
-    //             // 'id' => 1070325026,
-    //             // 'product_id' => 1071559574,
-    //             'title' => $option1['name'],
-    //             'price' => $variant->getPrix_vente(),
-    //             'cost' => $pimcore_product->getPrice_buying() ?? $pimcore_product->getPrice_buying_default(),
-    //             'sku' => $variant->getReference_declinaison(),
-    //             'position' => 1,
-    //             'inventory_policy' => self::INVENTORY_POLICY,
-    //             'compare_at_price' => null,
-    //             'fulfillment_service' => self::FULFILLMENT_SERVICE,
-    //             'inventory_management' => self::INVENTORY_MANAGEMENT,
-    //             'option1' => $option1['value'] ?? 'par défaut',
-    //             'option2' => $option2['value'] ?? 'par défaut',
-    //             'option3' => $option3['value'] ?? 'par défaut',
-    //             // 'created_at' => '2023-06-14T14:23:53-04:00',
-    //             // 'updated_at' => '2023-06-14T14:23:53-04:00',
-    //             // 'taxable' => true,
-    //             'barcode' => $variant->getEan13(),
-    //             // 'grams' => null,
-    //             // 'image_id' => null,
-    //             'weight' => $variant->getWeight(),
-    //             'weight_unit' => Dataobject::getByPath('/Config/unit_weight')->getValeur(),
-    //             // 'inventory_item_id' => 1070325026,
-    //             'inventory_quantity' => $variant->getQuantity(),
-    //             // 'old_inventory_quantity' => 0,
-    //             // 'presentment_prices' => [
-    //             //     [
-    //             //         'price' => [
-    //             //             'amount' => $variant->getPrix_vente(),
-    //             //             'currency_code' => self::CURRENCY_CODE
-    //             //         ],
-    //             //         'compare_at_price' => $variant->getPrix_vente(),
-    //             //     ]
-    //             // ],
-    //             // 'requires_shipping' => true,
-    //             // 'admin_graphql_api_id' => 'gid://shopify/ProductVariant/1070325026'
-    //         ];
-    //     }
-
-
-    //     $shopify_product = [
-    //         'product' => [
-    //             //  'id' => 687468438,
-    //             'title' => $pimcore_product->getName(),
-    //             'body_html' => $pimcore_product->getDescription(),
-    //             // 'vendor' => $pimcore_product->getManufacturer(),
-    //             'product_type' => $pimcore_product->getCategory_default(),
-    //             // 'created_at' => $pimcore_product->getCreationDate(),
-    //             // 'handle' => 'burton-custom-freestyle-151',
-    //             // 'updated_at' => '2023-06-14T14:23:53-04:00',
-    //             // 'published_at' => null,
-    //             // 'template_suffix' => null,
-    //             'status' => $pimcore_product->getPublished() ? 'active' : 'draft',
-    //             'published_scope' => self::PUBLISHED_SCOPE,
-    //             // 'tags' => ,
-    //             // 'admin_graphql_api_id' => 'gid://shopify/Product/1071559574',
-    //             'variants' => $variants,
-    //             "options" => [],
-    //             'images' => [],
-    //             'image' => null]
-    //     ];
-
-    //     if (isset($option1['name']))
-    //         $shopify_product['product']['options'][] = [
-    //             "name" => $option1['name'],
-    //             "position" => 1,
-    //             "values" => $option1['all_values']
-    //         ];
-    //     if (isset($option2['name']))
-    //         $shopify_product['product']['options'][] = [
-    //             "name" => $option2['name'],
-    //             "position" => 2,
-    //             // "values" => ['Bleu', 'Rouge']
-    //             "values" => $option2['all_values']
-    //         ];
-    //     if (isset($option3['name']))
-    //         $shopify_product['product']['options'][] = [
-    //             "name" => $option3['name'],
-    //             "position" => 3,
-    //             "values" => $option3['all_values']
-    //         ];
-
-    //     try {
-    //         $variables = [
-    //             "input" => [
-    //                 "title" => $shopify_product['product']['title'],
-    //                 "productOptions" => $shopify_product['product']['options'],
-    //                 "descriptionHtml" => $shopify_product['product']['body_html'],
-    //                 "category" => $shopify_product['product']['product_type'],
-    //                 "productType" => $shopify_product['product']['product_type'],
-    //                 "status" => $shopify_product['product']['status'],
-    //             ],
-    //         ];
-    //         $query = <<<QUERY
-    //         mutation ProductCreate($input: ProductInput!) {
-    //           productCreate(input: $input) {
-    //             product {
-    //               id
-    //               title
-    //               descriptionHtml
-    //               category
-    //               productType
-    //               status
-    //               options {
-    //                 id
-    //                 name
-    //                 position
-    //                 optionValues {
-    //                   id
-    //                   name
-    //                   hasVariants
-    //                 }
-    //               }
-    //             }
-    //             userErrors {
-    //               field
-    //               message
-    //             }
-    //           }
-    //         }
-    //       QUERY;
-    //         $result = $this->client->query(['query' => $query, 'variables' => $variables]);
-    //         // $result = $this->client->post(
-    //         //     path: 'products',
-    //         //     body: $shopify_product
-    //         // )->getDecodedBody();
-
-    //         // $category = $pimcore_product->getCategory()[0];
-    //         // if ($category_crossid = Outils::getCrossid($category, $this->diffusion, 'ext_id')) {
-    //         //     $this->client->post(path: 'collects', body: [
-    //         //         'collect' => [
-    //         //             'product_id' => $result['product']['id'],
-    //         //             'collection_id' => $category_crossid
-    //         //         ]
-    //         //     ]);
-    //         // } else {
-    //         //     $collection_body = [
-    //         //         'custom_collection' => [
-    //         //             'title' => $category->getName(),
-    //         //             'collects' => [
-    //         //                 [
-    //         //                     'product_id' => $result['product']['id'],
-    //         //                 ]
-    //         //             ]
-    //         //         ]
-    //         //     ];
-    //         //     $collection_result = $this->client
-    //         //         ->post(path: 'custom_collections', body: $collection_body)
-    //         //         ->getDecodedBody();
-    //         //     // dump([$category, $this->diffusion, $collection_result['custom_collection']['id']]);
-    //         //     Outils::addCrossid(object: $category, source: $this->diffusion, ext_id: $collection_result['custom_collection']['id']);
-
-    //         // }
-    //         Outils::addCrossid(object: $pimcore_product, source: $this->diffusion, ext_id: $result['product']['id']);
-    //         return json_encode($result);
-    //     } catch
-    //     (ClientExceptionInterface $e) {
-    //         return $e->getMessage();
-    //     } catch (UninitializedContextException $e) {
-    //         return $e->getMessage();
-    //     }
     // }
 
     public function updateStock(Product $pimcore_product)
@@ -393,6 +165,10 @@ class ShopifyApiClient extends ecShopifyBundle
             return true;
         }
         $diffusionActive = $pimcore_product->getDiffusions_active();
+        if(empty($diffusionActive)){
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé');
+            return true;
+        }
         $tabIdDiffAct = [];
         foreach($diffusionActive as $diff){
             $tabIdDiffAct[] = $diff;
@@ -488,6 +264,9 @@ class ShopifyApiClient extends ecShopifyBundle
             ];
             try{
                 $response = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($query));
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($variables));
+                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response));
                 // Outils::addLog(json_encode($response));
             } catch
             (ClientExceptionInterface $e) {
@@ -526,6 +305,10 @@ class ShopifyApiClient extends ecShopifyBundle
     public function updateProduct(Product $pimcore_product): string
     {
         $diffusionActive = $pimcore_product->getDiffusions_active();
+        if(empty($diffusionActive)){
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé');
+            return true;
+        }
         $tabIdDiffAct = [];
 
         if(!is_array($diffusionActive)){
@@ -550,8 +333,6 @@ class ShopifyApiClient extends ecShopifyBundle
 
         $time = microtime(true);
         $lang = Tool::getValidLanguages()[0];
-        // Outils::addLog('fonction updateProduct ' . $time);
-        // Outils::addLog($pimcore_product->getId(), 1);
         /////////////
         //// Partie Collection
         /////////////
@@ -586,17 +367,13 @@ class ShopifyApiClient extends ecShopifyBundle
         $listIdCateg = [];
         // Outils::addLog(json_encode($categories));
         if(!empty($categories)){
-            // $listCateg = $categories[$maxID];
-                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégories ' . json_encode($categories)); 
             foreach($categories as $listCateg){
-                // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'listCateg ' . json_encode($listCateg)); 
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'listCateg ' . json_encode($listCateg)); 
                 foreach($listCateg['ids'] as $key => $id){
                     $cat = DataObject::getById($id);
                     $halfCrossIDCateg = Outils::getCrossid($cat, $this->diffusion);
-                    // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'data ' . json_encode(['key' => $key,'id' => $id, 'halfCrossIDCateg' => $halfCrossIDCateg])); 
-                    // Outils::addLog('halfcross');
-                    // Outils::addLog(json_encode($halfCrossID));
-                    // Outils::addLog(json_encode($id));
+                    // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'data ' . json_encode(['key' => $key,'id' => $id, 'halfCrossIDCateg' => $halfCrossIDCateg])); 
+
                     // Création Collection
                     if(!$halfCrossIDCateg){
                         // Outils::addLog('CREATION categ');
@@ -623,19 +400,13 @@ class ShopifyApiClient extends ecShopifyBundle
                         ];
                         try{
                             $response = [];
-                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie variable ' . json_encode($variables)); 
                             $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-                            // Outils::addLog('yolo (ShopifyApiClient:' . __LINE__ . ') -'.'catégorie response ' . json_encode($response)); 
-                            // Outils::addLog('REPONSE CREATION COLLECTION');
-                            // Outils::addLog(json_encode($response));
                         } catch
                         (ClientExceptionInterface $e) {
                             return $e->getMessage();
                         } catch (UninitializedContextException $e) {
                             return $e->getMessage();
                         }
-                        // Outils::addLog('REPONSE CREATION COLLECTION');
-                        // Outils::addLog(json_encode($response));
                         
                         if(is_array($response) && isset($response['data']['collectionCreate']['collection']['id'])){
                             $responseId = $response['data']['collectionCreate']['collection']['id'];
@@ -706,7 +477,6 @@ class ShopifyApiClient extends ecShopifyBundle
                 'body_html' => $pimcore_product->getDescription($lang),
                 // 'vendor' => $pimcore_product->getManufacturer(),
                 'product_type' => 'Default',
-                // 'product_type' => $pimcore_product->getCategory_default(),
                 'price' => $pimcore_product->getPrice_recommended(),
                 'cost' => $pimcore_product->getPrice_buying_default(),
                 'sku' => $pimcore_product->getReference(),
@@ -787,7 +557,6 @@ class ShopifyApiClient extends ecShopifyBundle
                     }
                 }';
                 $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-                // Outils::addLog(json_encode($result) . $time); 
 
                 // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'add crossid ' . $time);         
                 if(is_array($result) && isset($result['data']['productCreate']['product']['id'])){
@@ -903,10 +672,13 @@ class ShopifyApiClient extends ecShopifyBundle
     {
         // Outils::addLog('fonction deleteProduct ');
         $diffusionActive = $pimcore_product->getDiffusions_active();
+        if(empty($diffusionActive)){
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé');
+            return true;
+        }
         $tabIdDiffAct = [];
         foreach($diffusionActive as $diff){
             $tabIdDiffAct[] = $diff;
-           
         }
         if(!in_array($this->diffusion->getId(), $tabIdDiffAct)){
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé' . $diff); 
@@ -1004,7 +776,6 @@ class ShopifyApiClient extends ecShopifyBundle
     }
 
     public function deleteDecli(Declinaison $decl){
-
         $sto = 0;      
 
         // GET inventory item
@@ -1021,7 +792,7 @@ class ShopifyApiClient extends ecShopifyBundle
         }';
         try{
             $response = $this->client->query(['query' => $query])->getDecodedBody();
-            // Outils::addLog(json_encode($response));
+            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response));
         } catch
         (ClientExceptionInterface $e) {
             return $e->getMessage();
@@ -1061,23 +832,23 @@ class ShopifyApiClient extends ecShopifyBundle
               "quantities" => [
                     [
                         "inventoryItemId"=>$idInventoryItem, 
-                        // "locationId"=>"gid://shopify/Location/102113280322", 
                         "locationId"=> 'gid://shopify/Location/'.outils::getConfigByName($this->diffusion,'shopify_location_id'), 
                         "quantity"=>$sto, 
-                        // "compareQuantity" => 0,
                     ]
                 ],
             ],
         ];
         try{
             $response = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-            // Outils::addLog(json_encode($response));
+            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($variables));
+            // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response));
         } catch
         (ClientExceptionInterface $e) {
             return $e->getMessage();
         } catch (UninitializedContextException $e) {
             return $e->getMessage();
         }
+        return true;
         // Outils::addLog('retour updateStock');
 
 
@@ -1167,19 +938,6 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     // public function createCollection(\Pimcore\Model\DataObject\Category $category)
     // {
-    //     if ($category_crossid = Outils::getCrossid($category, $this->diffusion, 'ext_id')) {
-    //         return $category_crossid;
-    //     }
-    //     $collection_body = [
-    //         'custom_collection' => [
-    //             'title' => $category->getName(),
-    //         ]
-    //     ];
-    //     $collection_result = $this->client
-    //         ->post(path: 'custom_collections', body: $collection_body)
-    //         ->getDecodedBody();
-    //     Outils::addCrossid(object: $category, source: $this->diffusion, ext_id: $collection_result['custom_collection']['id']);
-    //     return $category_crossid;
     // }
 
     /**
@@ -1187,16 +945,6 @@ class ShopifyApiClient extends ecShopifyBundle
      */
     // public function deleteCollection(Category $category)
     // {
-    //     try {
-    //         $data = $this->client->delete(
-    //             path: 'custom_collections', query: ['id' => Outils::getCrossId(obj: $category, source: $this->diffusion)]
-    //         );
-    //         return $data->getDecodedBody();
-    //     } catch (ClientExceptionInterface $e) {
-    //         return $e->getMessage();
-    //     } catch (MissingArgumentException|UninitializedContextException|JsonException $e) {
-    //         return $e->getMessage();
-    //     }
     // }
 
     // public function updateCarac(Product $product)
@@ -1221,6 +969,10 @@ class ShopifyApiClient extends ecShopifyBundle
         
         // Check si le pere est diffusé
         $diffusionActive = $pimcore_product->getDiffusions_active();
+        if(empty($diffusionActive)){
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit parent pas diffusé');
+            return true;
+        }
         $tabIdDiffAct = [];
         foreach($diffusionActive as $diff){
             $tabIdDiffAct[] = $diff;
@@ -1420,8 +1172,6 @@ class ShopifyApiClient extends ecShopifyBundle
                 "productId" => $productCrossID,
                 "variants" => $variants,
             ];
-            // Outils::addLog('query create Variante');
-            // Outils::addLog(json_encode($variables));
             $query = 'mutation ProductVariantsCreate($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
                 productVariantsBulkCreate(productId: $productId, variants: $variants) {
                     productVariants {
@@ -1502,6 +1252,10 @@ class ShopifyApiClient extends ecShopifyBundle
         
         // Check si le pere est diffusé
         $diffusionActive = $pimcore_product->getDiffusions_active();
+        if(empty($diffusionActive)){
+            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit parent pas diffusé');
+            return true;
+        }
         $tabIdDiffAct = [];
         foreach($diffusionActive as $diff){
             $tabIdDiffAct[] = $diff;
@@ -1548,7 +1302,6 @@ class ShopifyApiClient extends ecShopifyBundle
                 }
             }';
 
-            
             $price = Outils::getBestPriceVente(product: $pimcore_product,tax: true, id_diffusion: $this->diffusion->getId(), id_declinaison: $decli->getId());
             $variantShopify = [
                 'id' => $crossID,
@@ -1562,7 +1315,6 @@ class ShopifyApiClient extends ecShopifyBundle
             
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
-                // Outils::addLog(json_encode($response));
                 // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response)); 
             } catch
             (ClientExceptionInterface $e) {
