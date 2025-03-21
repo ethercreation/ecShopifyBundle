@@ -191,35 +191,35 @@ class WebhookController extends DefaultController
                 'current_state' => $data['fulfillment_status'],
             ],
             'address_delivery' => [
-                'country' => $data['shipping_address']['country'] ?? $data['billing_address']['country'],
-                'firstname' => $data['shipping_address']['first_name'] ?? $data['billing_address']['first_name'],
-                'lastname' => $data['shipping_address']['last_name'] ?? $data['billing_address']['last_name'],
-                'company' => $data['shipping_address']['company'] ?? $data['billing_address']['company'],
-                'address1' => $data['shipping_address']['address1'] ?? $data['billing_address']['address1'],
-                'address2' => $data['shipping_address']['address2'] ?? $data['billing_address']['address2'],
-                'postcode' => $data['shipping_address']['zip'] ?? $data['billing_address']['zip'],
-                'city' => $data['shipping_address']['city'] ?? $data['billing_address']['city'],
-                'phone' => $data['shipping_address']['phone'] ?? $data['billing_address']['phone'],
+                'country' => $data['shipping_address']['country'] ?? $data['billing_address']['country'] ?? 'FR',
+                'firstname' => $data['shipping_address']['first_name'] ?? $data['billing_address']['first_name'] ?? 'NC',
+                'lastname' => $data['shipping_address']['last_name'] ?? $data['billing_address']['last_name'] ?? 'NC',
+                'company' => $data['shipping_address']['company'] ?? $data['billing_address']['company'] ?? '',
+                'address1' => $data['shipping_address']['address1'] ?? $data['billing_address']['address1'] ?? 'NC',
+                'address2' => $data['shipping_address']['address2'] ?? $data['billing_address']['address2'] ?? '',
+                'postcode' => $data['shipping_address']['zip'] ?? $data['billing_address']['zip'] ?? '12345',
+                'city' => $data['shipping_address']['city'] ?? $data['billing_address']['city'] ?? 'NC',
+                'phone' => $data['shipping_address']['phone'] ?? $data['billing_address']['phone'] ?? '0000000000',
                 'phone_mobile' => '',
-                'iso_code' => $data['shipping_address']['country_code'] ?? $data['billing_address']['country_code'],
+                'iso_code' => $data['shipping_address']['country_code'] ?? $data['billing_address']['country_code'] ?? 'FR',
             ],
             'address_invoice' => [
-                'country' => $data['billing_address']['country'] ?? $data['shipping_address']['country'],
-                'firstname' => $data['billing_address']['first_name'] ?? $data['shipping_address']['first_name'],
-                'lastname' => $data['billing_address']['last_name'] ?? $data['shipping_address']['last_name'],
-                'company' => $data['billing_address']['company'] ?? $data['shipping_address']['company'],
-                'address1' => $data['billing_address']['address1'] ?? $data['shipping_address']['address1'],
-                'address2' => $data['billing_address']['address2'] ?? $data['shipping_address']['address2'],
-                'postcode' => $data['billing_address']['zip'] ?? $data['shipping_address']['zip'],
-                'city' => $data['billing_address']['city'] ?? $data['shipping_address']['city'],
-                'phone' => $data['billing_address']['phone'] ?? $data['shipping_address']['phone'],
+                'country' => $data['billing_address']['country'] ?? $data['shipping_address']['country'] ?? 'FR',
+                'firstname' => $data['billing_address']['first_name'] ?? $data['shipping_address']['first_name'] ?? 'NC',
+                'lastname' => $data['billing_address']['last_name'] ?? $data['shipping_address']['last_name'] ?? 'NC',
+                'company' => $data['billing_address']['company'] ?? $data['shipping_address']['company'] ?? '',
+                'address1' => $data['billing_address']['address1'] ?? $data['shipping_address']['address1'] ?? 'NC',
+                'address2' => $data['billing_address']['address2'] ?? $data['shipping_address']['address2'] ?? '',
+                'postcode' => $data['billing_address']['zip'] ?? $data['shipping_address']['zip'] ?? '12345',
+                'city' => $data['billing_address']['city'] ?? $data['shipping_address']['city'] ?? 'NC',
+                'phone' => $data['billing_address']['phone'] ?? $data['shipping_address']['phone'] ?? '0000000000',
                 'phone_mobile' => '',
-                'iso_code' => $data['billing_address']['country_code'] ?? $data['shipping_address']['country_code'],
+                'iso_code' => $data['billing_address']['country_code'] ?? $data['shipping_address']['country_code'] ?? 'FR',
             ],
             'customer' => [
-                'firstname' => $data['customer']['first_name'],
-                'lastname' => $data['customer']['last_name'],
-                'email' => $data['customer']['email'],
+                'firstname' => $data['customer']['first_name'] ?? 'NC',
+                'lastname' => $data['customer']['last_name'] ?? 'NC',
+                'email' => $data['customer']['email'] ?? 'NC@NC.fr',
                 'id_default_group' => $data['source_name'] ?? 'Web',
             ],
             'details' => array_map(function ($item) {
@@ -250,6 +250,9 @@ class WebhookController extends DefaultController
         // $diffusion = Diffusion::getByPath('/Diffusion/Hadrien');
         Outils::importOrder($diffusion->getId(), json_encode($transformedData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE));
         Outils::addLog('FIN CREA COMMANDDE', 3, [], 'NOMDULOG'); 
+
+        // Outils::addTag($obj, 'deref');
+
         return new Response(content: '<pre>OK</pre>', status: 200);
  
     }
