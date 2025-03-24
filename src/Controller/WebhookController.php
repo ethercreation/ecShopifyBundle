@@ -224,22 +224,20 @@ class WebhookController extends DefaultController
             ],
             'details' => array_map(function ($item) {
                 // $rate = $item['tax_lines']['rate'];
-                $valTaxe = 0;
-                if(isset($item['tax_lines']['price'])){
-                    $valTaxe = $item['tax_lines']['price'];
-                }
+                $valTaxe = $item['tax_lines'][0]['price'] ?? $item['tax_lines']['price'] ?? 0;
                 return [
                     'id_order' => $item['id'],
                     'product_id' => $item['product_id'],
                     'product_attribute_id' => $item['variant_id'] ?? 0,
                     'product_quantity' => $item['quantity'],
                     'product_price' => (float) $item['price'],
-                    'product_name' => $item['title'],
+                    'product_name' => $item['name'] ?? $item['title'],
                     'product_reference' => $item['sku'],
                     'total_price_tax_incl' => (float) $item['price_set']['shop_money']['amount'] * $item['quantity'],
                     'total_price_tax_excl' => (float) ($item['price_set']['shop_money']['amount'] - $valTaxe) * $item['quantity'],
                     'unit_price_tax_excl' => (float) $item['price_set']['shop_money']['amount'] - $valTaxe,
                     'unit_price_tax_incl' => (float) $item['price_set']['shop_money']['amount'],
+                    // 'ecotax' => 0,
                 ];
             }, $data['line_items'])
         ];
@@ -248,6 +246,7 @@ class WebhookController extends DefaultController
         // $diffusion = Diffusion::getById(self::ID_DIFFUSION);
         // $diffusion = Diffusion::getByPath('/Diffusion/Shopify');
         // $diffusion = Diffusion::getByPath('/Diffusion/Hadrien');
+        Outils::addLog('Appel Outils::importOrder => '.json_encode($transformedData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE), 3);
         Outils::importOrder($diffusion->getId(), json_encode($transformedData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE));
         Outils::addLog('FIN CREA COMMANDDE', 3, [], 'NOMDULOG'); 
 
