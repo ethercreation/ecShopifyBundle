@@ -365,12 +365,13 @@ class ImportController extends FrontendController
             Outils::addLog('Shopify ' . $prod->id . ' - OK by ID ' . $idPim);
             $tabReu[] = 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim;
         }
-
+        $parent = false;
         foreach ($decli->info as $decliVerif) {
             $idPim = Outils::getExist($decliVerif->id, $id_diffusion, 'crossid', 'declinaison');
             if ($idPim > 0) {
                 Outils::addLog('Shopify ' . $prod->id . ' - OK by ID ' . $idPim .' - DECLI '.$decliVerif->id);
                 $tabReu[] = 'Shopify ' . $prod->id . ' - OK by ID ' . $idPim.' - DECLI '.$decliVerif->id;
+                $parent = true;
             }
 
             // Verif si EAN13-
@@ -381,8 +382,11 @@ class ImportController extends FrontendController
                     if (is_array($idPims) && array_key_exists(0, $idPims)) {
                         Outils::addLog('Shopify ' . $prod->id . ' - OK by EAN13 ' . $decliVerif->ean13 . ' - IDPIM ' . $idPim);
                         Outils::addCrossid($idPims[0]['id'], $id_diffusion, $decliVerif->id, false);
-                        $objpim = DataObject::getById($idPims[0]['id']);                        
-                        Outils::addCrossid($objpim->getParentId(), $id_diffusion, $prod->id, false);
+                        $objpim = DataObject::getById($idPims[0]['id']);  
+                        if (!$parent) {
+                            Outils::addCrossid($objpim->getParentId(), $id_diffusion, $prod->id, false);
+                        }
+                        $parent = true;
                         $objParent = DataObject::getById($objpim->getParentId());
                         $listDi = $objParent->getDiffusions_active();
                         $listDi[] = $id_diffusion;
@@ -405,7 +409,10 @@ class ImportController extends FrontendController
                         $diff = $diffusion;
                         if ($idPim > 0) {
                             Outils::addCrossid($infoDecli[0]['id'], $id_diffusion, $decliVerif->id, false);
-                            Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
+                            if (!$parent) {
+                                Outils::addCrossid($idPim, $id_diffusion, $prod->id, false);
+                            }
+                            $parent = true;
                             $objpim = DataObject::getById($idPim);
                             $objpim->forcequeue = true;                            
                             $listDi = $objpim->getDiffusions_active();
