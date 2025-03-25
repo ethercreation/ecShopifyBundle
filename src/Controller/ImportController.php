@@ -389,7 +389,8 @@ class ImportController extends FrontendController
                         $parent = true;
                         $objParent = DataObject::getById($objpim->getParentId());
                         $listDi = $objParent->getDiffusions_active();
-                        $listDi[] = $id_diffusion;
+                        $listDi[] = $id_diffusion;                        
+                        $listDi = array_unique($listDi);
                         $objParent->setDiffusions_active($listDi);
                         $objParent->forcequeue = true;
                         $objParent->save();
@@ -417,6 +418,7 @@ class ImportController extends FrontendController
                             $objpim->forcequeue = true;                            
                             $listDi = $objpim->getDiffusions_active();
                             $listDi[] = $id_diffusion;
+                            $listDi = array_unique($listDi);
                             $objpim->setDiffusions_active($listDi);
                             $objpim->save();
                             $this->updateObjectPrice($infoDecli[0]['id']);
