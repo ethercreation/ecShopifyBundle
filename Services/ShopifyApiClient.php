@@ -494,7 +494,8 @@ class ShopifyApiClient extends ecShopifyBundle
                 // 'updated_at' => '2023-06-14T14:23:53-04:00',
                 // 'published_at' => null,
                 // 'template_suffix' => null,
-                'status' => $active ? 'ACTIVE' : 'DRAFT',
+                // 'status' => $active ? 'ACTIVE' : 'DRAFT',
+                'status' => 'DRAFT',
                 'published_scope' => self::PUBLISHED_SCOPE,
                 // 'tags' => ,
                 // 'variants' => $variants,
@@ -630,7 +631,7 @@ class ShopifyApiClient extends ecShopifyBundle
                         // // "variants" => $shopify_product['product']['variants'],
                         // // "category" => $shopify_product['product']['product_type'],
                         // "productType" => $shopify_product['product']['product_type'],
-                        "status" => $shopify_product['product']['status'],
+                        // "status" => $shopify_product['product']['status'],
                         // "collectionsToJoin" => $shopify_product['product']['collectionsToJoin'],
                         // "collectionsToLeave" => $temp,
                     ],
@@ -679,6 +680,7 @@ class ShopifyApiClient extends ecShopifyBundle
         $tabIdDiffAct = [];
         foreach($diffusionActive as $diff){
             $tabIdDiffAct[] = $diff;
+           
         }
         if(!in_array($this->diffusion->getId(), $tabIdDiffAct)){
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé' . $diff); 
