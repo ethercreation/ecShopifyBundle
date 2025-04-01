@@ -264,9 +264,9 @@ class ShopifyApiClient extends ecShopifyBundle
             ];
             try{
                 $response = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($query));
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($variables));
-                Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response));
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($query));
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($variables));
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'. json_encode($response));
                 // Outils::addLog(json_encode($response));
             } catch
             (ClientExceptionInterface $e) {
@@ -992,7 +992,7 @@ class ShopifyApiClient extends ecShopifyBundle
             // en attendant d'avoir un updateStockDecli
             // Le delete mets les stock a 0 pour le moment
             if($halfCrossID){
-                $this->deleteDecli($decli);
+               $this->deleteDecli($decli);
             }            
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'declinaison inactive'); 
             return true;

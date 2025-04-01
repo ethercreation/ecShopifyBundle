@@ -47,6 +47,8 @@ use Shopify\Exception\{InvalidArgumentException,
 use Shopify\Rest\Admin2023_04\Product;
 use Symfony\Component\HttpFoundation\{Request, Response};
 use Symfony\Component\Routing\Annotation\Route;
+use bundles\ecShopifyBundle\Controller\PimcoreHookController;
+use Pimcore\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPaymentResponse\JsonResponse;
 
 class DefaultController extends FrontendController
 {
@@ -915,13 +917,109 @@ class DefaultController extends FrontendController
             $cron->setStages(array('\bundles\ecShopifyBundle\src\Controller\MigrationController::cronGetFile'));
             $cron->save();
         }
-
-        
+        if (!Dataobject::getByPath('/Cron/majStockShopifyForce')) {
+            $cron = new DataObject\Cron();
+            $cron->setParentID(WebsiteSetting::getByName('folderCron')->getData());
+            $cron->setKey('majStockShopifyForce');
+            $cron->setPrefix('majStockShopifyForce');
+            $cron->setCommentaire('force maj stock shopify');
+            $cron->setListStages('cronMajStock');
+            $cron->setToken(md5(time()));
+            $cron->setPublished(true);
+            // $cron->setVisibility('1');
+            $cron->setStages(array('\bundles\ecShopifyBundle\src\Controller\DefaultController::cronMajStock'));
+            $cron->save();
+        }        
 
         $diffusion->setId_folder($folder->getId());
         $diffusion->save();
 
         return new Response('<pre>ok</pre>');
+    }
+
+    
+    #[Route("/shopify/cronMajStock")]
+    public function cronMajStock($params = '') { 
+        Outils::addLog('(DefaultController:' . __LINE__ . ') - cronMajStock');
+        $cron = $params['cron']??0;
+        $nbCron = $params['nbCron']??0;
+        $stopTime = $params['stopTime']??(time()+10);
+        $idcron = $params['idcron']??0;
+        $diffusion = Dataobject::getByPath('/Diffusion/Shopify');
+     
+        if (!$cron = Outils::getCache('object_'.$idcron)) {
+            $cron = DataObject::getById($idcron);
+            Outils::putCache('object_'.$idcron, $cron);
+        }
+
+        // $idDiff = str_replace('maj_stock_', '', $cron->getKey());
+        $idDiff = $diffusion->getId();
+
+        // if (!$diffusion = Outils::getCache('object_'.$idDiff)) {
+        //     $diffusion = DataObject::getById($idDiff);
+        //     Outils::putCache('object_'.$idDiff, $diffusion);
+        // }
+
+        // $reqProd = Outils::query('SELECT dd.id as DDID, pl.id as id
+        $reqProd = Outils::query('SELECT pl.id as id
+            FROM object_localized_'.Outils::getIDClass('product').'_fr pl
+            LEFT JOIN object_'.Outils::getIDClass('marque').' m ON (m.id = pl.manufacturer__id)
+            LEFT JOIN object_'.Outils::getIDClass('source').' s ON (s.id = pl.supplier_default)
+            #LEFT JOIN object_'.Outils::getIDClass('declinaison').' dd ON (dd.parentId = pl.id)
+            LEFT JOIN object_localized_'.Outils::getIDClass('category').'_fr cl ON (cl.id = (
+                SELECT DISTINCT a.dest_id
+                FROM object_metadata_'.Outils::getIDClass('product').' a
+                JOIN object_metadata_'.Outils::getIDClass('product').' b ON a.dest_id = b.dest_id
+                WHERE a.id = pl.id 
+                AND b.id = pl.id 
+                AND a.id = b.id
+                AND a.data = '.(int)$idDiff.'
+                AND a.column = "id_diffusion"
+                AND b.data = "1" 
+                AND b.column = "is_default"))
+            WHERE pl.type = "object"
+            AND pl.published = 1
+            AND (pl.archive IS NULL OR pl.archive = 0)
+            AND (cl.archive IS NULL OR cl.archive = 0)
+            AND diffusions_active LIKE "%,'.(int)$idDiff.',%"');
+
+        $jobLine = 0;        
+        // $diffusionTab = $this->getOneDiffusionPS($idDiff);
+        $shopAPI = new ShopifyApiClient();
+        foreach ($reqProd as $prod) {
+            if (($stopTime < time()) && ($jobLine > $nbCron)) {         
+                return $jobLine;
+            }   
+            $jobLine++;
+            if ($jobLine <= $nbCron) {
+                continue;
+            }
+
+            // $sto = 0;
+            // if (is_array($diffusion->getEntrepot())) {
+            //     foreach ($diffusion->getEntrepot() as $ent) {
+            //         $sto = $sto + Outils::getStockProduct($prod['id'], $prod['DDID'], 'dispo', $ent->getObjectId(), 0);
+            //     }
+            // } else {
+            //     $sto = Outils::getStockProduct($prod['id'], $prod['DDID'], 'dispo', 0, 0);
+            // }
+            
+            $object['object'] = 'stock';
+            // $object['stock'] = $sto;
+            // if ($prod['DDID'] && $prod['DDID'] > 0) {
+            //     $object['id_declinaison'] = Outils::getCrossId($prod['DDID'], $diffusion->getId()); 
+            // }
+            // $object['id_ps'] = Outils::getCrossId($prod['id'], $diffusion->getId());
+
+            // Outils::addLog('(DefaultController:' . __LINE__ . ') - updateStock produit id : ' . $prod['id']);
+            $produit = DataObject::getById($prod['id']);
+            $shopAPI->updateStock($produit);
+            // Outils::addLog('(DefaultController:' . __LINE__ . ') - fin updateStock produit id : ' . $prod['id']);
+            
+            // $results = Outils::goCurl($diffusionTab['base_link'].'stock', 180, ['post' => ['json' => json_encode($object, JSON_UNESCAPED_UNICODE), 'user_pass' => $this->diff_htaccess[$diffusion->getId()]]]);
+            // $result =  json_decode(trim($results['result']), true);
+        }
+        return true;
     }
 
 }
