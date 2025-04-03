@@ -199,7 +199,6 @@ class ShopifyApiClient extends ecShopifyBundle
                 $sto = $sto + $depot['quantity_physique'];
             }            
             
-
             // GET inventory item
             $query = 'query inventoryItems {
               inventoryItems(first: 1, query: "sku:\''.$variant->getReference_declinaison().'\'") {
@@ -466,11 +465,23 @@ class ShopifyApiClient extends ecShopifyBundle
         //                 'name' => 'Par defaut',
         //                 'optionName' => 'Title' 
         //             ],
-        //         ],
-                       
+        //         ],            
         //         // 'inventory_quantity' => $sto,
         //     ];
         // }
+
+        $firstDecl = $pimcore_product->getDecli();
+        $firstDecl = reset($firstDecl);
+        $attrName = [];
+        foreach($firstDecl->getAttribut() as $atr){
+            $attribute = $atr->getParent();
+            $name = $attribute->getName($lang);
+            $attrName[] = [
+                'name' => $name,
+                'values' => [['name' => $atr->getName($lang)]]
+            ];
+        }
+
         $shopify_product = [
             'product' => [
                 'title' => $pimcore_product->getName(),
@@ -502,7 +513,8 @@ class ShopifyApiClient extends ecShopifyBundle
                 'vendor' => $pimcore_product->getManufacturer()->getName(),
                 "options" => [],
                 'images' => [],
-                'image' => null
+                'image' => null,
+                'productOptions' => $attrName
                 ]
         ];        
 
@@ -528,6 +540,7 @@ class ShopifyApiClient extends ecShopifyBundle
                         "status" => $shopify_product['product']['status'],
                         "collectionsToJoin" => $shopify_product['product']['collectionsToJoin'],
                         "vendor" => $shopify_product['product']['vendor'],
+                        "productOptions" => $shopify_product['product']['productOptions'],
                     ],
                 ];
                 // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'variables creation produit ' . json_encode($variables) ); 
@@ -558,7 +571,8 @@ class ShopifyApiClient extends ecShopifyBundle
                     }
                 }';
                 $result = $this->client->query(['query' => $query, 'variables' => $variables])->getDecodedBody();
-
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.  json_encode($variables)); 
+                // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.  json_encode($result)); 
                 // Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'add crossid ' . $time);         
                 if(is_array($result) && isset($result['data']['productCreate']['product']['id'])){
                     $completeId = $result['data']['productCreate']['product']['id'];
@@ -592,7 +606,6 @@ class ShopifyApiClient extends ecShopifyBundle
             // Outils::addLog('cas update');
             $crossID = 'gid://shopify/Product/' . $halfCrossID;
             try {
-
                 $query = 'query CollectionsForProduct($productId: ID!) {
                     product(id: $productId) {
                       collections(first: 10) {
@@ -1009,39 +1022,45 @@ class ShopifyApiClient extends ecShopifyBundle
         foreach($stoDepot as $depot){
             $sto = $sto + $depot['quantity_physique'];
         }
-        $options = [
-            'option1' => ['name' => null, 'value' => null, 'all_values' => []],
-            'option2' => ['name' => null, 'value' => null, 'all_values' => []],
-            'option3' => ['name' => null, 'value' => null, 'all_values' => []]
-        ];
+        // $options = [
+        //     'option1' => ['name' => null, 'value' => null, 'all_values' => []],
+        //     'option2' => ['name' => null, 'value' => null, 'all_values' => []],
+        //     'option3' => ['name' => null, 'value' => null, 'all_values' => []]
+        // ];
         $attributes = $decli->getAttribut();
-        $options['option1']['value'] = null;
-        $options['option2']['value'] = null;
-        $options['option3']['value'] = null;
+        // $options['option1']['value'] = null;
+        // $options['option2']['value'] = null;
+        // $options['option3']['value'] = null;
+        $optionsValue = [];
         foreach ($attributes as $attribute_value) {
             /* @var $attribute_value Attribut */
+            
             $attribute = $attribute_value->getParent();
             $name = $attribute->getName($lang);
             $value = $attribute_value->getName($lang);
-
-            foreach ($options as $key => &$option) {
-                if ($name === $option['name'] || $option['name'] === null) {
-                    $option['name'] = $name;
-                    $option['value'] = $value;
-                    $option['all_values'][] = $value;
-                    break;
-                }
-            }
-            unset($option); // Important: annule la référence pour éviter les problèmes ultérieurs
+            
+            $optionsValue[] = [
+                'name' => $value,
+                'optionName' => $name,
+            ];
+            // foreach ($options as $key => &$option) {
+            //     if ($name === $option['name'] || $option['name'] === null) {
+            //         $option['name'] = $name;
+            //         $option['value'] = $value;
+            //         $option['all_values'][] = $value;
+            //         break;
+            //     }
+            // }
+            // unset($option); // Important: annule la référence pour éviter les problèmes ultérieurs
         }
         // Outils::addLog('Mise à jour du produit (options) :' . json_encode($options), 1, [], 'NOMDULOG');
 
-        $optionTab = [];
-        foreach($options as $option){
-            if($option['value'] != null || $option['value'] != ''){
-                $optionTab[] = $option['value'];
-            }
-        }
+        // $optionTab = [];
+        // foreach($options as $option){
+        //     if($option['value'] != null || $option['value'] != ''){
+        //         $optionTab[] = $option['value'];
+        //     }
+        // }
         $price = Outils::getBestPriceVente(product: $pimcore_product,tax: true, id_diffusion: $this->diffusion->getId(), id_declinaison: $decli->getId());
         $variants = [
             // 'title' => 'par defaut',
@@ -1065,12 +1084,13 @@ class ShopifyApiClient extends ecShopifyBundle
                 // 'locationId' => 'gid://shopify/Location/102113280322',
                 'locationId' => 'gid://shopify/Location/'.outils::getConfigByName($this->diffusion,'shopify_location_id'),
             ],
-            'optionValues' => [ // Options for the variant (e.g., Size, Color)
-                [ 
-                    'name' => join(' / ', $optionTab),
-                    'optionName' => 'Title' 
-                ],
-            ],
+            'optionValues' => $optionsValue,
+            // 'optionValues' => [ // Options for the variant (e.g., Size, Color)
+            //     [ 
+            //         'name' => join(' / ', $optionTab),
+            //         'optionName' => 'Title' 
+            //     ],
+            // ],
         ];
 
         
@@ -1206,6 +1226,7 @@ class ShopifyApiClient extends ecShopifyBundle
             try{
                 $response = $this->client->query(["query" => $query, "variables" => $variables])->getDecodedBody();
                 $prodVar = $response['data']['productVariantsBulkCreate']['productVariants'];
+                // Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($variables)); 
                 // Outils::addLog('ShopifyAPiClient ' . __LINE__ . json_encode($response)); 
             } catch
             (ClientExceptionInterface $e) {

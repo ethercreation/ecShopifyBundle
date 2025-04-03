@@ -289,6 +289,26 @@ class PimcoreHookController extends DefaultController
         return new Response('<pre>' . json_encode([$result]) . '</pre>');
     }
 
+    public function hookDeletePriceSelling($params) {
+        //Outils::addLog('fonction hookUpdatePriceSelling');
+        // Outils::addLog('(PimcoreHookController:' . __LINE__ . ') - debut hookDeletePriceSelling');
+        $pricing = $params['priceSelling'];   
+        $pricing->setHideUnpublished(false);
+
+        $shopify_client = new ShopifyApiClient();
+        $decl = $pricing->getDecli();
+        if(!is_object($decl)){
+            return new Response('<pre>ok</pre>');
+        }
+        // Outils::addLog('id : ' . $pricing->getId());
+        if($decl->getClassName() != 'declinaison'){
+            return new Response('<pre>ok</pre>');
+        }
+        $result = $shopify_client->updateDecliPrix($decl);
+        // Outils::addLog('(PimcoreHookController:' . __LINE__ . ') - fin hookDeletePriceSelling');
+        return new Response('<pre>' . json_encode([$result]) . '</pre>');
+    }
+
     /**
      * Actions à effectuer lors de la modification d'une déclinaison dans pimcore
      * @throws MissingArgumentException
