@@ -160,10 +160,10 @@ class ShopifyApiClient extends ecShopifyBundle
 
         // Verif si produit actif
         $productActive = $pimcore_product->isPublished();
-        if(!$productActive){
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit désactivé'); 
-            return true;
-        }
+        // if(!$productActive){
+        //     Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit désactivé'); 
+        //     return true;
+        // }
         $diffusionActive = $pimcore_product->getDiffusions_active();
         if(empty($diffusionActive)){
             Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'produit pas diffusé');
@@ -1291,10 +1291,10 @@ class ShopifyApiClient extends ecShopifyBundle
         // Check si decl active
         $isActive = $decli->getPublished();
         $halfCrossID = Outils::getCrossId($decli, $this->diffusion);
-        if(!$isActive){        
-            Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'declinaison inactive'); 
-            return true;
-        }
+        // if(!$isActive){        
+        //     Outils::addLog('(ShopifyApiClient:' . __LINE__ . ') -'.'declinaison inactive'); 
+        //     return true;
+        // }
         
         $halfproductCrossID = Outils::getCrossId($pimcore_product, $this->diffusion);
         $productCrossID = 'gid://shopify/Product/' . $halfproductCrossID;
